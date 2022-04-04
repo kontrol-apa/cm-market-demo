@@ -1,0 +1,89 @@
+type Blueprint @entity {
+  id: ID! # tokenID
+  score : Int!
+  scoreCategory: Int!
+  emojiString: String
+  listing : Listing @derivedFrom (field: "blueprint") 
+  bids: [Bid!] @derivedFrom (field: "blueprint") 
+  emojis: [Emoji!]!
+  owner: String
+  history: [Activity!] @derivedFrom (field: "blueprint")
+  
+}
+
+
+
+type Bid @entity {
+  id: ID! # TokenId_BidId
+  tokenID : BigInt!
+  bidPrice : BigInt!
+  bidder : String!
+  owner : String!
+  blueprint: Blueprint
+  # might also wanna add the bidID for convinience 
+}
+
+type Listing @entity {
+  id: ID! # ListingId
+  tokenID : BigInt!
+  owner : String!
+  price : BigInt!
+  blueprint: Blueprint!
+
+}
+
+
+type Statistics @entity {
+  id: ID!
+  totalBlueprint: Int!
+  totalVolume: BigInt!
+  totalOwners: Int!
+  totalEmojiCount: Int!
+
+}
+
+
+type Owner @entity{ # count entities somehow
+  id: ID!
+  numberOfBlueprints: Int!
+  
+}
+
+type Emoji @entity{ 
+  id: ID!
+  count: Int!
+  blueprints: [Blueprint!]! @derivedFrom(field: "emojis") # reverse look up from a list
+  
+}
+
+type ScoreSalesVolume @entity{
+  id: ID!
+  totalVolume: BigInt!
+}
+
+type Activity @entity{
+  id: ID! # blueprintId
+  name: String
+  blueprint: Blueprint
+  date: BigInt
+  from: String
+  to: String
+  price: BigInt
+
+}
+
+type BurnedBlueprint @entity{
+  id: ID! # blueprintId
+  count: Int!
+
+
+}
+
+type EmojiPrice @entity{
+  id: ID!
+  price: BigInt!
+  emoji: String!
+}
+
+
+
