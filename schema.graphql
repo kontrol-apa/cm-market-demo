@@ -1,16 +1,16 @@
 type Blueprint @entity {
   id: ID! # tokenID
   score : Int!
-  scoreCategory: Int!
+  scoreCategory: String!
   emojiString: String
   listing : Listing @derivedFrom (field: "blueprint") 
   bids: [Bid!] @derivedFrom (field: "blueprint") 
   emojis: [Emoji!]!
   owner: String
   history: [Activity!] @derivedFrom (field: "blueprint")
+  combined: Int
   
 }
-
 
 
 type Bid @entity {
@@ -20,7 +20,7 @@ type Bid @entity {
   bidder : String!
   owner : String!
   blueprint: Blueprint
-  # might also wanna add the bidID for convinience 
+  bidId: BigInt!
 }
 
 type Listing @entity {
@@ -53,6 +53,7 @@ type Emoji @entity{
   id: ID!
   count: Int!
   blueprints: [Blueprint!]! @derivedFrom(field: "emojis") # reverse look up from a list
+  emojiPrices: [EmojiPrice!] @derivedFrom(field: "emoji")
   
 }
 
@@ -62,7 +63,7 @@ type ScoreSalesVolume @entity{
 }
 
 type Activity @entity{
-  id: ID! # blueprintId
+  id: ID! # blueprintId + txid
   name: String
   blueprint: Blueprint
   date: BigInt
@@ -76,14 +77,32 @@ type BurnedBlueprint @entity{
   id: ID! # blueprintId
   count: Int!
 
-
 }
 
 type EmojiPrice @entity{
   id: ID!
   price: BigInt!
-  emoji: String!
+  emoji: Emoji!
 }
+
+type EmojiLeaderBoard @entity {
+  id: ID! # emoji name
+  suply: Int!
+  floor: BigInt!
+  available : Int!
+  avarageSale : BigInt!
+  totalVolume: BigInt!
+}
+
+type ClassLeaderBoard @entity {
+  id: ID! # common, big, epic, enormous, colossal
+  suply: Int! # out for nowfloor: BigInt
+  available : Int!
+  avarageSale : BigInt!
+  totalVolume: BigInt!
+}
+
+
 
 
 

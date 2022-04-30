@@ -6,9 +6,8 @@ dataSources:
     name: CMMarketplace
     network: fuji
     source:
-      address: "0x99d8aaec953e59b153911b57dd6972af3fc93716"
+      address: "0x9e3753f2e9459cd4e9174b9a302c048b73fc313f"
       abi: CMMarketplace
-      startBlock: 8171830
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -34,7 +33,7 @@ dataSources:
           handler: handleCancelBidEv
         - event: CancelListingEv(indexed uint256)
           handler: handleCancelListingEv
-        - event: CreateBidEv(uint256,indexed uint256,uint256,address,address)
+        - event: CreateBidEv(uint256,indexed uint256,uint256,address)
           handler: handleCreateBidEv
         - event: FulfillListingEv(indexed uint256,uint256)
           handler: handleFulfillListingEv
@@ -47,8 +46,8 @@ dataSources:
     name: CMBlueprint
     network: fuji
     source:
-      address: "0x9e3753f2e9459cd4e9174b9a302c048b73fc313a"
-      startBlock: 8171830
+      address: "0x685DAD0606BCF04e39cA3f981d7cea2a6Df0b434"
+      startBlock: 9025112
       abi: CMBlueprint
     mapping:
       kind: ethereum/events

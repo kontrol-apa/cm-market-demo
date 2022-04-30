@@ -1,5 +1,5 @@
-import { Bid, Blueprint, Statistics, Owner, Emoji, Activity, ScoreSalesVolume, BurnedBlueprint, EmojiPrice} from "../generated/schema"
-import { ethereum, Address, BigInt, Bytes, log, store } from "@graphprotocol/graph-ts"
+import { Bid, Blueprint, Statistics, Owner, Emoji, Activity, ScoreSalesVolume, BurnedBlueprint, EmojiPrice, ClassLeaderBoard} from "../generated/schema"
+import { ethereum, Address, BigInt, Bytes, log, store, BigDecimal } from "@graphprotocol/graph-ts"
 
 export function getOrCreateStatistics() : Statistics{
     
@@ -17,7 +17,7 @@ export function getOrCreateStatistics() : Statistics{
 
 }
 
-export function getOrCreateEmoji(emojiString: string) : Emoji{
+function getOrCreateEmoji(emojiString: string) : Emoji{
     let emoji = Emoji.load(emojiString) as Emoji;
     if(emoji == null){ 
         emoji = new Emoji(emojiString);
@@ -44,25 +44,9 @@ export function decreaseEmojiCount(emojiString: string) : void{
 export function registerEmojis(emojiStringList: string []) : void {
     emojiStringList.forEach(element => {
         let emoji = getOrCreateEmoji(element);
-        emoji.count++;    
+        emoji.count++;
+        emoji.save()
     });
-}
-
-export function getBlueprintScoreInterval(score: i32): i32{
-    let scoreCategory:i32 = 0;
-    if(score > 20 && score <= 40){
-      scoreCategory = 1;
-    }
-    if(score > 40 && score <= 60){
-      scoreCategory = 2;
-    }
-    if(score > 60 && score <= 80){
-      scoreCategory = 3;
-    }
-    if(score > 80){
-      scoreCategory = 4;
-    }
-    return scoreCategory;
 }
 
 
@@ -80,6 +64,7 @@ export function addOwnerandUpdateStatistics(ownerAdress: Address, statistics: St
     }
     owner.save();
 }
+
 // combining or transfering doesnt reduce the owner count
 export function removeOwner(ownerAdress: Address, statistics: Statistics): void {
 
@@ -94,45 +79,6 @@ export function removeOwner(ownerAdress: Address, statistics: Statistics): void 
     
 }
 
-
-export function setBlueprintandOwnertoNullandZero(bids: string []): void {
-    bids.forEach(bidId => {
-        let bid = new Bid(bidId)
-        bid.blueprint = null
-        bid.owner = Address.fromI32(0).toHex()
-        bid.save()
-    });
-}
-
-
-export function registerActivity(tokenID: BigInt, eventName: string, event: ethereum.Event ): void {
-    let activity = new Activity(event.transaction.hash.toHex()+ tokenID.toHex())
-    activity.blueprint = tokenID.toHex()
-    activity.name = eventName
-    activity.from = event.transaction.from.toHex()
-    activity.to = event.transaction.to!.toHex()
-    activity.date = event.block.timestamp
-    activity.save()
-
-}
-
-export function registerSaleActivity(tokenID: BigInt, eventName: string, event: ethereum.Event, price:BigInt ): void {
-    let activity = new Activity(event.transaction.hash.toHex()+ tokenID.toHex())
-    activity.blueprint = tokenID.toHex()
-    activity.name = eventName
-    activity.from = event.transaction.from.toHex()
-    activity.to = event.transaction.to!.toHex()
-    activity.date = event.block.timestamp
-    activity.save()
-
-}
-
-export function removeActivityHistory(blueprint: Blueprint): void {
-    blueprint.history!.forEach(activity => {
-        store.remove('Activity',activity)
-    });
-
-}
 
 export function UpdateSaleVolumePerScorePoint(scorePoint: number, salePrice: BigInt): void {
     let saleVolumePerScore =  ScoreSalesVolume.load(scorePoint.toString())
@@ -170,6 +116,7 @@ export function updateEmojiPrices(emojis: string [], price: BigInt, tokenId: Big
     for (let x: u32 = 0; x < u32(emojis.length); ++x) {
         let emojiPrice =  new EmojiPrice(emojis[x] + tokenId.toHex())
         emojiPrice.price = price;
+        emojiPrice.emoji = emojis[x];
     }
 }
 
@@ -181,4 +128,6 @@ export function removeEmojiPrices(emojis: string [], tokenId: BigInt) : void {
 
     
 }
+
+
 
