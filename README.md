@@ -20,3 +20,4 @@ Run the tests:
 graph test
 ```
 
+https://thegraph.com/docs/en/hosted-service/deploy-subgraph-hosted/#redeploying-a-subgraph
