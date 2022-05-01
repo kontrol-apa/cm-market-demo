@@ -5,7 +5,7 @@ type Blueprint @entity {
   emojiString: String
   listing : Listing @derivedFrom (field: "blueprint") 
   bids: [Bid!] @derivedFrom (field: "blueprint") 
-  emojis: [Emoji!]!
+  emojis: [EmojiLeaderBoard!]! 
   owner: String
   history: [Activity!] @derivedFrom (field: "blueprint")
   combined: Int!
@@ -52,7 +52,6 @@ type Owner @entity{ # count entities somehow
 type Emoji @entity{ 
   id: ID!
   count: Int!
-  blueprints: [Blueprint!]! @derivedFrom(field: "emojis") # reverse look up from a list
   emojiPrices: [EmojiPrice!] @derivedFrom(field: "emoji")
   
 }
@@ -92,6 +91,7 @@ type EmojiLeaderBoard @entity {
   available : Int!
   avarageSale : BigInt!
   totalVolume: BigInt!
+  blueprints: [Blueprint!]! @derivedFrom(field: "emojis") # reverse look up from a list
 }
 
 type ClassLeaderBoard @entity {

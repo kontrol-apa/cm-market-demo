@@ -186,6 +186,7 @@ export function handleTransfer(event: Transfer): void {
     // 
     //log.info('EMojis: {}, {}, {}', [bp.value0.toString(), bp.value1.toString(),  bp.value2.toString() ])
     registerEmojis([bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]) // might be redundant 
+    updateEmojiLeaderBoardsAfterMint([bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]);
     blueprint.emojis = [bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]
     blueprint.emojiString = bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4
     blueprint.score = bp.value5.toI32()
@@ -195,7 +196,7 @@ export function handleTransfer(event: Transfer): void {
     blueprint.save()
     statistics.totalBlueprint++;
     statistics.totalEmojiCount = statistics.totalEmojiCount + 5
-    updateEmojiLeaderBoardsAfterMint(blueprint.emojis);
+    
     createClassesLeaderBoardAfterMint(blueprint.score);
   }
   else { // direct transfer to another address
