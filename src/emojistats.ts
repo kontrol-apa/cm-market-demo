@@ -1,5 +1,5 @@
 import { Emoji, EmojiPrice, EmojiLeaderBoard} from "../generated/schema"
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, log } from "@graphprotocol/graph-ts"
 
 
 function findFloor(emojiName: string, oldFloorPrice: BigInt): BigInt {
@@ -15,8 +15,8 @@ function findFloor(emojiName: string, oldFloorPrice: BigInt): BigInt {
     return floor;
 
 }
-function updateEmojiLeaderBoardAfterMint(emojiName: string): void {
-    let emojiStats = EmojiLeaderBoard.load(emojiName) as EmojiLeaderBoard;
+function createEmojiLeaderBoardAfterMint(emojiName: string): void {
+    let emojiStats = EmojiLeaderBoard.load(emojiName)
     if(emojiStats == null){ 
         emojiStats = new EmojiLeaderBoard(emojiName);
         emojiStats.suply = 1;
@@ -33,9 +33,15 @@ function updateEmojiLeaderBoardAfterMint(emojiName: string): void {
 }
 
 function updateEmojiLeaderBoardAfterCombine(emojiName: string): void { 
-    let emojiStats = EmojiLeaderBoard.load(emojiName) as EmojiLeaderBoard;
-    emojiStats.suply -= 1;
-    emojiStats.save();
+    let emojiStats = EmojiLeaderBoard.load(emojiName);
+    if(emojiStats){
+        emojiStats.suply -= 1;
+        emojiStats.save();
+    }
+    else {
+        log.error('{}',['unexpected null @ updateEmojiLeaderBoardAfterCombine']);
+        
+    }
     // all of the other stats are not affected since something combinbed can not be on the market hence no floor etc
 
 }
@@ -120,6 +126,6 @@ export function updateEmojiLeaderBoardsAfterSale(emojis: string[], price: BigInt
 
 export function updateEmojiLeaderBoardsAfterMint(emojis: string[]): void {
     for (let x: u32 = 0; x < u32(emojis.length); ++x) {
-        updateEmojiLeaderBoardAfterMint(emojis[x]);
+        createEmojiLeaderBoardAfterMint(emojis[x]);
     }
 }

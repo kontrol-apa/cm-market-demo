@@ -1,13 +1,13 @@
 {
-  "name": "test_subgraph_market",
+  "name": "cm-market-demo",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ kontrol-apa/test_subgraph_market",
-    "create-local": "graph create --node http://localhost:8020/ kontrol-apa/test_subgraph_market",
-    "remove-local": "graph remove --node http://localhost:8020/ kontrol-apa/test_subgraph_market",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kontrol-apa/test_subgraph_market"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ kontrol-apa/cm-market-demo",
+    "create-local": "graph create --node http://localhost:8020/ kontrol-apa/cm-market-demo",
+    "remove-local": "graph remove --node http://localhost:8020/ kontrol-apa/cm-market-demo",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kontrol-apa/cm-market-demo"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.27.0",

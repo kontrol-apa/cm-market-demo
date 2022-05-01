@@ -24,8 +24,9 @@ export function registerSaleActivity(tokenID: BigInt, eventName: string, event: 
 }
 
 export function removeActivityHistory(blueprint: Blueprint): void {
+    if(blueprint.history){
     blueprint.history!.forEach(activity => {
         store.remove('Activity',activity)
     });
-
+    }
 }

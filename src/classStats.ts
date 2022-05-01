@@ -1,9 +1,9 @@
 import {ClassLeaderBoard} from "../generated/schema"
 import { BigInt } from "@graphprotocol/graph-ts"
 
-export function updateClassesLeaderBoardAfterMint(BpScore: i32): void {
+export function createClassesLeaderBoardAfterMint(BpScore: i32): void {
     let className = getClassName(BpScore);
-    let classStats = ClassLeaderBoard.load(className) as ClassLeaderBoard;
+    let classStats = ClassLeaderBoard.load(className);
     if(classStats == null){ 
         classStats = new ClassLeaderBoard(className);
         classStats.suply = 1;

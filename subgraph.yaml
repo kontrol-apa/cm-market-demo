@@ -7,6 +7,7 @@ dataSources:
     network: fuji
     source:
       address: "0x9e3753f2e9459cd4e9174b9a302c048b73fc313f"
+      startBlock: 9025112
       abi: CMMarketplace
     mapping:
       kind: ethereum/events
