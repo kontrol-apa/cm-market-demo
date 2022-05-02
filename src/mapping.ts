@@ -27,26 +27,25 @@ const MARKETPLACE_ADDRESS: Address = Address.fromString('0xdeaddeaddeaddeaddeadd
 
 
 export function handleCreateBidEv(event: CreateBidEv): void {
-  let name = event.params.tokenId.toHex() + event.params.bidId.toHex()
+  let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
   let entity = new Bid(name)
   entity.bidder = event.transaction.from.toHex();
   entity.bidPrice = event.params.bidPrice
   entity.owner = event.params.owner.toHex()
   entity.tokenID = event.params.tokenId
   entity.blueprint = event.params.tokenId.toHex()
-  entity.bidId = event.params.bidId;
   entity.save()
 
 }
 
 export function handleCancelBidEv(event: CancelBidEv): void {
-  let name = event.params.tokenId.toHex() + event.params.bidId.toHex()
+  let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
   store.remove('Bid', name)
 
 }
 
 export function handleAcceptBidEv(event: AcceptBidEv): void {
-  let name = event.params.tokenId.toHex() + event.params.bidId.toHex()
+  let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
   let blueprint = Blueprint.load(event.params.tokenId.toHex())
   let bid = Bid.load(name)
   if (blueprint) {

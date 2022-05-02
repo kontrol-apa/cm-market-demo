@@ -14,13 +14,12 @@ type Blueprint @entity {
 
 
 type Bid @entity {
-  id: ID! # TokenId_BidId
+  id: ID! # TokenId_BidderAddy
   tokenID : BigInt!
   bidPrice : BigInt!
   bidder : String!
   owner : String!
   blueprint: Blueprint
-  bidId: BigInt!
 }
 
 type Listing @entity {
@@ -74,7 +73,7 @@ type Activity @entity{
 
 type BurnedBlueprint @entity{
   id: ID! # blueprintId
-  count: Int!
+  bidder: [String!]!
 
 }
 

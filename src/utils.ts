@@ -97,26 +97,33 @@ export function UpdateSaleVolumePerScorePoint(scorePoint: number, salePrice: Big
 
 }
 
-export function flagBurnedBlueprintForRefund(blueprint: Blueprint): void {
-    if (blueprint.bids) {
-        let burnedBlueprint = BurnedBlueprint.load(blueprint.id)
-        if (burnedBlueprint) {
-            burnedBlueprint.count = blueprint.bids!.length
-            burnedBlueprint.save();
-        }
-    }
 
+// creates a BurnedBlueprint entity
+export function flagBurnedBlueprintForRefund(blueprint: Blueprint): void {
+    const bidsList = blueprint.bids
+    if (bidsList) {
+        let burnedBlueprint = new BurnedBlueprint(blueprint.id)
+        for (let index = 0; index < bidsList.length; index++) {
+            burnedBlueprint.bidder[index] = bidsList[index];
+
+        }
+        burnedBlueprint.save();
+    }
 }
 
-export function updateBurnedBlueprintBids(tokenId: string): void {
+
+
+
+
+export function updateBurnedBlueprintBids(tokenId: string, bidder: string): void {
     let burnedBlueprint = BurnedBlueprint.load(tokenId)
     if (burnedBlueprint) {
-        burnedBlueprint.count--;
-        if (burnedBlueprint.count == 0) {
-            store.remove('BurnedBlueprint', tokenId)
-            // the bids are deleted with the events sent by refund
+        if (burnedBlueprint.bidder.length == 1) {
+            store.remove('BurnedBlueprint', tokenId);
         }
         else {
+            const index = burnedBlueprint.bidder.indexOf(bidder);
+            burnedBlueprint.bidder.splice(index);
             burnedBlueprint.save();
         }
     }

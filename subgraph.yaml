@@ -26,15 +26,15 @@ dataSources:
         - name: CMMarketplace
           file: ./abis/CMMarketplace.json
       eventHandlers:
-        - event: AcceptBidEv(uint256,indexed uint256)
+        - event: AcceptBidEv(uint256,address)
           handler: handleAcceptBidEv
         - event: AddListingEv(indexed uint256,uint256)
           handler: handleAddListingEv
-        - event: CancelBidEv(uint256,indexed uint256)
+        - event: CreateBidEv(uint256,uint256,address)
           handler: handleCancelBidEv
         - event: CancelListingEv(indexed uint256)
           handler: handleCancelListingEv
-        - event: CreateBidEv(uint256,indexed uint256,uint256,address)
+        - event: CreateBidEv(uint256,uint256,address)
           handler: handleCreateBidEv
         - event: FulfillListingEv(indexed uint256,uint256)
           handler: handleFulfillListingEv
