@@ -1,5 +1,5 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
-import { UpdateSaleVolumePerScorePoint, updateEmojiPrices, removeEmojiPrices, flagBurnedBlueprintForRefund, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner } from "./utils"
+import { UpdateSaleVolumePerScorePoint, updateEmojiPrices, removeEmojiPrices, flagBurnedBlueprintForRefund,updateBurnedBlueprintBids, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner } from "./utils"
 import { registerActivity, registerSaleActivity, removeActivityHistory } from "./activity"
 
 import {
@@ -40,6 +40,13 @@ export function handleCreateBidEv(event: CreateBidEv): void {
 
 export function handleCancelBidEv(event: CancelBidEv): void {
   let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
+  const canceledBid = Bid.load(name);
+  if(canceledBid){
+    updateBurnedBlueprintBids(canceledBid.tokenID.toHex(),canceledBid.bidder);
+  }
+  else {
+    log.error('{}',['Canceled Bid Doesnt Exist']);
+  }
   store.remove('Bid', name)
 
 }
