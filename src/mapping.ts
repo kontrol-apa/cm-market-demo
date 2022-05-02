@@ -10,7 +10,8 @@ import {
   CancelListingEv,
   CreateBidEv,
   FulfillListingEv,
-  UpdateListingEv
+  UpdateListingEv,
+  UpdateBidEv
 } from "../generated/CMMarketplace/CMMarketplace"
 import {
   BleuprintBurnEv,
@@ -50,6 +51,17 @@ export function handleCancelBidEv(event: CancelBidEv): void {
   store.remove('Bid', name)
 
 }
+
+
+export function handleUpdateBidEv(event: UpdateBidEv): void {
+  let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
+  let bid = Bid.load(name);
+  bid!.bidPrice = event.params.bidPrice;
+  bid!.save()
+  
+}
+
+
 
 export function handleAcceptBidEv(event: AcceptBidEv): void {
   let name = event.params.tokenId.toHex() + event.transaction.from.toHex()

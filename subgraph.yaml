@@ -22,6 +22,7 @@ dataSources:
         - FulfillListingEv
         - OwnerUpdated
         - UpdateListingEv
+        - UpdateBidEv
       abis:
         - name: CMMarketplace
           file: ./abis/CMMarketplace.json
@@ -42,6 +43,8 @@ dataSources:
           handler: handleOwnerUpdated
         - event: UpdateListingEv(indexed uint256,uint256)
           handler: handleUpdateListingEv
+        - event: UpdateBidEv(uint256,uint256)
+          handler: handleUpdateBidEv
       file: ./src/mapping.ts
   - kind: ethereum
     name: CMBlueprint
