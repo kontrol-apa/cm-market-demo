@@ -24,7 +24,7 @@ import { Bid, Listing, Blueprint } from "../generated/schema"
 import { updateEmojiLeaderBoardsAddListing, updateEmojiLeaderBoardsAfterCombine, updateEmojiLeaderBoardsAfterMint, updateEmojiLeaderBoardsAfterSale, updateEmojiLeaderBoardsCancelListing, updateEmojiLeaderBoardsUpdateListing } from "./emojistats"
 import { getClassName, updateClasseseaderBoardAfterCombine, updateClassesLeaderBoardAddListing, createClassesLeaderBoardAfterMint, updateClassesLeaderBoardAfterSale, updateClassesLeaderBoardCancelListing } from "./classStats"
 
-const MARKETPLACE_ADDRESS: Address = Address.fromString('0xd126b4aae8897e87e5fe177a368a40a5da3d6d32')
+const MARKETPLACE_ADDRESS: Address = Address.fromString('0x150Ce3479d786cD0d5e79Bb2e187F5D4639d1563')
 
 
 export function handleCreateBidEv(event: CreateBidEv): void {
