@@ -1,6 +1,6 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
 import { UpdateSaleVolumePerScorePoint, updateEmojiPrices, removeEmojiPrices, flagBurnedBlueprintForRefund,updateBurnedBlueprintBids, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner } from "./utils"
-import { registerActivity, registerSaleActivity, removeActivityHistory } from "./activity"
+import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
 
 import {
   CMMarketplace,
@@ -35,6 +35,7 @@ export function handleCreateBidEv(event: CreateBidEv): void {
   entity.owner = event.params.owner.toHex()
   entity.tokenID = event.params.tokenId
   entity.blueprint = event.params.tokenId.toHex()
+  registerPlaceBidActivity(event);
   entity.save()
 
 }
@@ -44,10 +45,12 @@ export function handleCancelBidEv(event: CancelBidEv): void {
   const canceledBid = Bid.load(name);
   if(canceledBid){
     updateBurnedBlueprintBids(canceledBid.tokenID.toHex(),canceledBid.bidder);
+    registerCancelBidActivity(event);
   }
   else {
     log.error('{}',['Canceled Bid Doesnt Exist']);
   }
+
   store.remove('Bid', name)
 
 }
@@ -57,6 +60,7 @@ export function handleUpdateBidEv(event: UpdateBidEv): void {
   let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
   let bid = Bid.load(name);
   bid!.bidPrice = event.params.bidPrice;
+  registerUpdateBidActivity(event);
   bid!.save()
   
 }
@@ -78,7 +82,7 @@ export function handleAcceptBidEv(event: AcceptBidEv): void {
   removeOwner(Address.fromString(bid!.owner), statistics)
   addOwnerandUpdateStatistics(event.transaction.from, statistics)
   statistics.save()
-
+  registerAcceptBidActivity(event, bid!.bidPrice);
   store.remove('Bid', name)
 
 }
@@ -91,7 +95,7 @@ export function handleAddListingEv(event: AddListingEv): void {
   entity.tokenID = event.params.tokenId
   entity.blueprint = event.params.tokenId.toHex()
   entity.save()
-  registerSaleActivity(event.params.tokenId, "Listing", event, event.params.price);
+  registerAddListingActivity(event);
   let blueprint = Blueprint.load(entity.blueprint);
   updateEmojiPrices(blueprint!.emojis, entity.price, event.params.tokenId);
   updateEmojiLeaderBoardsAddListing(blueprint!.emojis, entity.price);
@@ -105,6 +109,7 @@ export function handleCancelListingEv(event: CancelListingEv): void {
   removeEmojiPrices(blueprint!.emojis, event.params.tokenId); // the order might matter
   updateEmojiLeaderBoardsCancelListing(blueprint!.emojis, listing!.price);
   updateClassesLeaderBoardCancelListing(blueprint!.score, listing!.price);
+  registerCancelListingActivity(event);
   store.remove('Listing', event.params.tokenId.toHex())
 
 }
@@ -120,7 +125,7 @@ export function handleFulfillListingEv(event: FulfillListingEv): void {
   blueprint!.save()
   statistics.save()
   UpdateSaleVolumePerScorePoint(blueprint!.score, listing!.price);
-  registerSaleActivity(event.params.tokenId, "Sale", event, event.params.price);
+  registerFullfillActivity(event, listing!.owner);
   store.remove('Listing', event.params.tokenId.toHex())
   removeEmojiPrices(blueprint!.emojis, event.params.tokenId);
   updateEmojiLeaderBoardsAfterSale(blueprint!.emojis, listing!.price);
@@ -134,6 +139,7 @@ export function handleUpdateListingEv(event: UpdateListingEv): void {
     let blueprint = Blueprint.load(listing.blueprint);
     updateEmojiPrices(blueprint!.emojis, event.params.price, event.params.tokenId);
     updateEmojiLeaderBoardsUpdateListing(blueprint!.emojis, listing.price);
+    registerUpdateListingActivity(event);
     listing.price = event.params.price
     listing.save()
   }
@@ -183,6 +189,7 @@ export function handleCombined(event: Combined): void {
   statistics.totalEmojiCount = statistics.totalEmojiCount - 10
   store.remove('Blueprint', innerTokenID)
   store.remove('Blueprint', outerTokenID)
+
   statistics.save()
 }
 

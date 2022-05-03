@@ -63,11 +63,13 @@ type ScoreSalesVolume @entity{
 type Activity @entity{
   id: ID! # blueprintId + txid
   name: String
+  eventCategory: String
   blueprint: Blueprint
   date: BigInt
   from: String
   to: String
   price: BigInt
+  txHash: Bytes
 
 }
 
