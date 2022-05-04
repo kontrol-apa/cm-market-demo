@@ -5,6 +5,7 @@ import { AcceptBidEv, AddListingEv, CancelBidEv, CancelListingEv, CreateBidEv, F
 export function registerActivity(tokenID: BigInt, eventName: string, event: ethereum.Event ): void {
     let activity = new Activity(event.transaction.hash.toHex()+ tokenID.toHex())
     activity.blueprint = tokenID.toHex()
+    activity.eventCategory = eventName
     activity.name = eventName
     activity.from = event.transaction.from.toHex()
     activity.to = event.transaction.to!.toHex()

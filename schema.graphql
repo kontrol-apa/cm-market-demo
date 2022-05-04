@@ -51,7 +51,6 @@ type Owner @entity{ # count entities somehow
 type Emoji @entity{ 
   id: ID!
   count: Int!
-  emojiPrices: [EmojiPrice!] @derivedFrom(field: "emoji")
   
 }
 
@@ -79,10 +78,10 @@ type BurnedBlueprint @entity{
 
 }
 
-type EmojiPrice @entity{
+
+type EmojiPricesList @entity {
   id: ID!
-  price: BigInt!
-  emoji: Emoji!
+  prices: [BigInt!]!
 }
 
 type EmojiLeaderBoard @entity {

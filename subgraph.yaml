@@ -6,7 +6,7 @@ dataSources:
     name: CloudMetropolisMarket
     network: fuji
     source:
-      address: "0x9e3753f2e9459cd4e9174b9a302c048b73fc313f"
+      address: "0x150Ce3479d786cD0d5e79Bb2e187F5D4639d1563"
       startBlock: 9025112
       abi: CloudMetropolisMarket
     mapping:
@@ -31,8 +31,6 @@ dataSources:
           handler: handleAcceptBidEv
         - event: AddListingEv(indexed uint256,uint256)
           handler: handleAddListingEv
-        - event: CreateBidEv(uint256,uint256,address)
-          handler: handleCancelBidEv
         - event: CancelListingEv(indexed uint256)
           handler: handleCancelListingEv
         - event: CreateBidEv(uint256,uint256,address)

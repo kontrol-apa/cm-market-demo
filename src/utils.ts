@@ -1,4 +1,4 @@
-import { Bid, Blueprint, Stat, Owner, Emoji, ScoreSalesVolume, BurnedBlueprint, EmojiPrice, ClassLeaderBoard } from "../generated/schema"
+import { Bid, Blueprint, Stat, Owner, Emoji, ScoreSalesVolume, BurnedBlueprint, EmojiPricesList } from "../generated/schema"
 import { ethereum, Address, BigInt, Bytes, log, store, BigDecimal } from "@graphprotocol/graph-ts"
 
 export function getOrCreateStatistics(): Stat {
@@ -17,7 +17,7 @@ export function getOrCreateStatistics(): Stat {
 
 }
 
-function getOrCreateEmoji(emojiString: string): Emoji {
+export function getOrCreateEmoji(emojiString: string): Emoji {
     let emoji = Emoji.load(emojiString);
     if (emoji == null) {
         emoji = new Emoji(emojiString);
@@ -129,23 +129,48 @@ export function updateBurnedBlueprintBids(tokenId: string, bidder: string): void
     }
 }
 
-export function updateEmojiPrices(emojis: string[], price: BigInt, tokenId: BigInt): void {
+
+
+
+export function updateEmojiPricesList(emojis: string[], price: BigInt): void {
     for (let x: u32 = 0; x < u32(emojis.length); ++x) {
-        let emojiPrice = new EmojiPrice(emojis[x] + tokenId.toHex())
-        emojiPrice.price = price;
-        emojiPrice.emoji = emojis[x];
-        emojiPrice.save()
+        let emojiPricelist = EmojiPricesList.load(emojis[x])
+        if (!emojiPricelist) {
+            emojiPricelist = new EmojiPricesList(emojis[x]);
+            emojiPricelist.prices = [price]
+            emojiPricelist.save();
+        }
+        else {
+            let priceList = emojiPricelist.prices
+            priceList.push(price)
+            emojiPricelist.prices = priceList;
+            emojiPricelist.save();
+        }
+
+
+    }
+}
+
+export function removeEmojiPricesList(emojis: string[], price: BigInt): void {
+    for (let x: u32 = 0; x < u32(emojis.length); ++x) {
+        let emojiPricelist = EmojiPricesList.load(emojis[x])
+        let prices = emojiPricelist!.prices;
+        if (prices.length == 1) {
+            emojiPricelist!.prices = [];
+            emojiPricelist!.save()
+        }
+        else {
+            let index = prices.indexOf(price)
+            let lastelem = prices.pop();
+            prices[index] = lastelem;
+            log.error("ID: {} , Index : {}, last elem {}, price: {}, entitiy prices len {} . original entity: {} ", [emojis[x], index.toString(), lastelem.toString(), prices.toString(), emojiPricelist!.prices.length.toString(), emojiPricelist!.prices.toString()])
+            emojiPricelist!.prices = prices;
+            emojiPricelist!.save()
+        }
     }
 }
 
 
-export function removeEmojiPrices(emojis: string[], tokenId: BigInt): void {
-    for (let x: u32 = 0; x < u32(emojis.length); ++x) {
-        store.remove('EmojiPrice', emojis[x] + tokenId.toHex());
-    }
-
-
-}
 
 
 

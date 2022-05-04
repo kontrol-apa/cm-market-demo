@@ -1,5 +1,5 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
-import { UpdateSaleVolumePerScorePoint, updateEmojiPrices, removeEmojiPrices, flagBurnedBlueprintForRefund,updateBurnedBlueprintBids, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner } from "./utils"
+import { UpdateSaleVolumePerScorePoint, flagBurnedBlueprintForRefund,updateBurnedBlueprintBids, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner,getOrCreateEmoji, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
 
 import {
@@ -20,7 +20,7 @@ import {
   Transfer
 } from "../generated/CMBlueprint/CMBlueprint"
 
-import { Bid, Listing, Blueprint } from "../generated/schema"
+import { Bid, Listing, Blueprint, EmojiPricesList} from "../generated/schema"
 import { updateEmojiLeaderBoardsAddListing, updateEmojiLeaderBoardsAfterCombine, updateEmojiLeaderBoardsAfterMint, updateEmojiLeaderBoardsAfterSale, updateEmojiLeaderBoardsCancelListing, updateEmojiLeaderBoardsUpdateListing } from "./emojistats"
 import { getClassName, updateClasseseaderBoardAfterCombine, updateClassesLeaderBoardAddListing, createClassesLeaderBoardAfterMint, updateClassesLeaderBoardAfterSale, updateClassesLeaderBoardCancelListing } from "./classStats"
 
@@ -95,9 +95,11 @@ export function handleAddListingEv(event: AddListingEv): void {
   entity.tokenID = event.params.tokenId
   entity.blueprint = event.params.tokenId.toHex()
   entity.save()
+  
   registerAddListingActivity(event);
   let blueprint = Blueprint.load(entity.blueprint);
-  updateEmojiPrices(blueprint!.emojis, entity.price, event.params.tokenId);
+  updateEmojiPricesList(blueprint!.emojis,  entity.price )
+
   updateEmojiLeaderBoardsAddListing(blueprint!.emojis, entity.price);
   updateClassesLeaderBoardAddListing(blueprint!.score, entity.price);
 
@@ -106,7 +108,7 @@ export function handleAddListingEv(event: AddListingEv): void {
 export function handleCancelListingEv(event: CancelListingEv): void {
   let listing = Listing.load(event.params.tokenId.toHex())
   let blueprint = Blueprint.load(listing!.blueprint);
-  removeEmojiPrices(blueprint!.emojis, event.params.tokenId); // the order might matter
+  removeEmojiPricesList(blueprint!.emojis, listing!.price)
   updateEmojiLeaderBoardsCancelListing(blueprint!.emojis, listing!.price);
   updateClassesLeaderBoardCancelListing(blueprint!.score, listing!.price);
   registerCancelListingActivity(event);
@@ -124,10 +126,10 @@ export function handleFulfillListingEv(event: FulfillListingEv): void {
   addOwnerandUpdateStatistics(event.transaction.from, statistics)
   blueprint!.save()
   statistics.save()
+  removeEmojiPricesList(blueprint!.emojis, listing!.price);
   UpdateSaleVolumePerScorePoint(blueprint!.score, listing!.price);
   registerFullfillActivity(event, listing!.owner);
   store.remove('Listing', event.params.tokenId.toHex())
-  removeEmojiPrices(blueprint!.emojis, event.params.tokenId);
   updateEmojiLeaderBoardsAfterSale(blueprint!.emojis, listing!.price);
   updateClassesLeaderBoardAfterSale(blueprint!.score, listing!.price);
 
@@ -137,7 +139,8 @@ export function handleUpdateListingEv(event: UpdateListingEv): void {
   let listing = Listing.load(event.params.tokenId.toHex())
   if (listing) {
     let blueprint = Blueprint.load(listing.blueprint);
-    updateEmojiPrices(blueprint!.emojis, event.params.price, event.params.tokenId);
+    removeEmojiPricesList(blueprint!.emojis, listing.price);
+    updateEmojiPricesList(blueprint!.emojis, listing.price);
     updateEmojiLeaderBoardsUpdateListing(blueprint!.emojis, listing.price);
     registerUpdateListingActivity(event);
     listing.price = event.params.price
