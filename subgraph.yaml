@@ -43,6 +43,8 @@ dataSources:
           handler: handleUpdateListingEv
         - event: UpdateBidEv(uint256,uint256)
           handler: handleUpdateBidEv
+        - event : CancelBidEv(uint256)
+          handler : handleCancelBidEv    
       file: ./src/mapping.ts
   - kind: ethereum
     name: CMBlueprint

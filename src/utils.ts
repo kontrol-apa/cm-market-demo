@@ -163,7 +163,6 @@ export function removeEmojiPricesList(emojis: string[], price: BigInt): void {
             let index = prices.indexOf(price)
             let lastelem = prices.pop();
             prices[index] = lastelem;
-            log.error("ID: {} , Index : {}, last elem {}, price: {}, entitiy prices len {} . original entity: {} ", [emojis[x], index.toString(), lastelem.toString(), prices.toString(), emojiPricelist!.prices.length.toString(), emojiPricelist!.prices.toString()])
             emojiPricelist!.prices = prices;
             emojiPricelist!.save()
         }
