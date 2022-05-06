@@ -78,7 +78,9 @@ export function removeOwner(ownerAdress: Address, statistics: Stat): void {
             statistics.totalOwners--;
             store.remove('Owner', ownerAdress.toHex())
         }
+        else {
         sender.save();
+        }    
     }
 
 }

@@ -36,6 +36,15 @@ export function updateClassesLeaderBoardAfterSale(BpScore: i32, price: BigInt): 
     
 }
 
+export function updateClassesLeaderBoardAfterAcceptBid(BpScore: i32, price: BigInt): void {
+    let className = getClassName(BpScore);
+    let classStats = ClassLeaderBoard.load(className) as ClassLeaderBoard;
+    classStats.totalVolume = classStats.totalVolume.plus(price);
+    classStats.avarageSale =  classStats.totalVolume.div(BigInt.fromI32(classStats.suply));
+    classStats.save();
+    
+}
+
 export function updateClassesLeaderBoardAddListing(BpScore: i32, price: BigInt): void { 
     let className = getClassName(BpScore);
     let classStats = ClassLeaderBoard.load(className) as ClassLeaderBoard;

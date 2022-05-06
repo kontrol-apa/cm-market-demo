@@ -1,6 +1,6 @@
 import { Blueprint,Activity} from "../generated/schema"
 import { ethereum,  BigInt, store,  } from "@graphprotocol/graph-ts"
-import { AcceptBidEv, AddListingEv, CancelBidEv, CancelListingEv, CreateBidEv, FulfillListingEv, UpdateBidEv, UpdateListingEv } from "../generated/CMMarketplace/CMMarketplace"
+import { AcceptBidEv, AddListingEv, CancelBidEv, CancelListingEv, CreateBidEv, FulfillListingEv, UpdateBidEv, UpdateListingEv } from "../generated/CloudMetropolisMarket/CloudMetropolisMarket"
 
 export function registerActivity(tokenID: BigInt, eventName: string, event: ethereum.Event ): void {
     let activity = new Activity(event.transaction.hash.toHex()+ tokenID.toHex())

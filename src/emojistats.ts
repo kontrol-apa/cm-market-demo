@@ -96,6 +96,16 @@ function updateEmojiLeaderBoardAfterSale(emojiName: string, price: BigInt): void
     }
     emojiStats.totalVolume = emojiStats.totalVolume.plus(price);
     emojiStats.avarageSale = emojiStats.totalVolume.div(BigInt.fromI32(emojiStats.suply));
+    emojiStats.available -=1;
+    emojiStats.save();
+
+}
+
+
+function updateEmojiLeaderBoardAfterAcceptBid(emojiName: string, price: BigInt): void {
+    let emojiStats = EmojiLeaderBoard.load(emojiName) as EmojiLeaderBoard;
+    emojiStats.totalVolume = emojiStats.totalVolume.plus(price);
+    emojiStats.avarageSale = emojiStats.totalVolume.div(BigInt.fromI32(emojiStats.suply));
     emojiStats.save();
 
 }
@@ -128,6 +138,12 @@ export function updateEmojiLeaderBoardsAddListing(emojis: string[], price: BigIn
 export function updateEmojiLeaderBoardsAfterSale(emojis: string[], price: BigInt): void {
     for (let x: u32 = 0; x < u32(emojis.length); ++x) {
         updateEmojiLeaderBoardAfterSale(emojis[x], price);
+    }
+}
+
+export function updateEmojiLeaderBoardsAfterAcceptBid(emojis: string[], price: BigInt): void {
+    for (let x: u32 = 0; x < u32(emojis.length); ++x) {
+        updateEmojiLeaderBoardAfterAcceptBid(emojis[x], price);
     }
 }
 

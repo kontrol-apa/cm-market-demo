@@ -3,7 +3,6 @@ import { UpdateSaleVolumePerScorePoint, flagBurnedBlueprintForRefund,updateBurne
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
 
 import {
-  CMMarketplace,
   AcceptBidEv,
   AddListingEv,
   CancelBidEv,
@@ -12,7 +11,7 @@ import {
   FulfillListingEv,
   UpdateListingEv,
   UpdateBidEv
-} from "../generated/CMMarketplace/CMMarketplace"
+} from "../generated/CloudMetropolisMarket/CloudMetropolisMarket"
 import {
   BleuprintBurnEv,
   CMBlueprint,
@@ -20,9 +19,9 @@ import {
   Transfer
 } from "../generated/CMBlueprint/CMBlueprint"
 
-import { Bid, Listing, Blueprint, EmojiPricesList} from "../generated/schema"
-import { updateEmojiLeaderBoardsAddListing, updateEmojiLeaderBoardsAfterCombine, updateEmojiLeaderBoardsAfterMint, updateEmojiLeaderBoardsAfterSale, updateEmojiLeaderBoardsCancelListing, updateEmojiLeaderBoardsUpdateListing } from "./emojistats"
-import { getClassName, updateClasseseaderBoardAfterCombine, updateClassesLeaderBoardAddListing, createClassesLeaderBoardAfterMint, updateClassesLeaderBoardAfterSale, updateClassesLeaderBoardCancelListing } from "./classStats"
+import { Bid, Listing, Blueprint} from "../generated/schema"
+import { updateEmojiLeaderBoardsAfterAcceptBid, updateEmojiLeaderBoardsAddListing, updateEmojiLeaderBoardsAfterCombine, updateEmojiLeaderBoardsAfterMint, updateEmojiLeaderBoardsAfterSale, updateEmojiLeaderBoardsCancelListing, updateEmojiLeaderBoardsUpdateListing } from "./emojistats"
+import { updateClassesLeaderBoardAfterAcceptBid, getClassName, updateClasseseaderBoardAfterCombine, updateClassesLeaderBoardAddListing, createClassesLeaderBoardAfterMint, updateClassesLeaderBoardAfterSale, updateClassesLeaderBoardCancelListing } from "./classStats"
 
 const MARKETPLACE_ADDRESS: Address = Address.fromString('0x150Ce3479d786cD0d5e79Bb2e187F5D4639d1563')
 
@@ -68,13 +67,13 @@ export function handleUpdateBidEv(event: UpdateBidEv): void {
 
 
 export function handleAcceptBidEv(event: AcceptBidEv): void {
-  let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
+  let name = event.params.tokenId.toHex() + event.params.buyer.toHex();
   let blueprint = Blueprint.load(event.params.tokenId.toHex())
   let bid = Bid.load(name)
   if (blueprint) {
     blueprint.owner = event.transaction.from.toHex();
     UpdateSaleVolumePerScorePoint(blueprint.score, bid!.bidPrice);
-    blueprint.save()
+    
   }
   let statistics = getOrCreateStatistics();
   statistics.totalVolume = statistics.totalVolume.plus(bid!.bidPrice);
@@ -83,6 +82,8 @@ export function handleAcceptBidEv(event: AcceptBidEv): void {
   addOwnerandUpdateStatistics(event.transaction.from, statistics)
   statistics.save()
   registerAcceptBidActivity(event, bid!.bidPrice);
+  updateEmojiLeaderBoardsAfterAcceptBid(blueprint!.emojis, bid!.bidPrice);
+  updateClassesLeaderBoardAfterAcceptBid(blueprint!.score, bid!.bidPrice);
   store.remove('Bid', name)
 
 }
