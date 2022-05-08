@@ -79,8 +79,8 @@ export function removeOwner(ownerAdress: Address, statistics: Stat): void {
             store.remove('Owner', ownerAdress.toHex())
         }
         else {
-        sender.save();
-        }    
+            sender.save();
+        }
     }
 
 }
@@ -162,12 +162,21 @@ export function removeEmojiPricesList(emojis: string[], price: BigInt): void {
             emojiPricelist!.save()
         }
         else {
-            let index = prices.indexOf(price)
-            let lastelem = prices.pop();
-            prices[index] = lastelem;
-            emojiPricelist!.prices = prices;
-            emojiPricelist!.save()
+            if (price.equals(prices[prices.length - 1])) { // if already the last element, dont replace
+                let lastelem = prices.pop();
+                emojiPricelist!.prices = prices;
+                emojiPricelist!.save()
+            }
+            else {
+                let lastelem = prices.pop();
+                let index = prices.indexOf(price)
+                prices[index] = lastelem;
+                emojiPricelist!.prices = prices;
+                emojiPricelist!.save()
+            }
         }
+
+
     }
 }
 
