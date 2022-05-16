@@ -1,5 +1,5 @@
-import { Bid, Blueprint, Stat, Owner, Emoji, ScoreSalesVolume, BurnedBlueprint, EmojiPricesList } from "../generated/schema"
-import { ethereum, Address, BigInt, Bytes, log, store, BigDecimal } from "@graphprotocol/graph-ts"
+import { Stat, Owner, Emoji, ScoreSalesVolume, EmojiPricesList } from "../generated/schema"
+import { Address, BigInt, log, store } from "@graphprotocol/graph-ts"
 
 export function getOrCreateStatistics(): Stat {
 
@@ -98,39 +98,6 @@ export function UpdateSaleVolumePerScorePoint(scorePoint: number, salePrice: Big
     saleVolumePerScore.save()
 
 }
-
-
-// creates a BurnedBlueprint entity
-export function flagBurnedBlueprintForRefund(blueprint: Blueprint): void {
-    const bidsList = blueprint.bids
-    if (bidsList) {
-        let burnedBlueprint = new BurnedBlueprint(blueprint.id)
-        for (let index = 0; index < bidsList.length; index++) {
-            burnedBlueprint.bidder[index] = bidsList[index];
-
-        }
-        burnedBlueprint.save();
-    }
-}
-
-
-
-
-
-export function updateBurnedBlueprintBids(tokenId: string, bidder: string): void {
-    let burnedBlueprint = BurnedBlueprint.load(tokenId)
-    if (burnedBlueprint) {
-        if (burnedBlueprint.bidder.length == 1) {
-            store.remove('BurnedBlueprint', tokenId);
-        }
-        else {
-            const index = burnedBlueprint.bidder.indexOf(bidder);
-            burnedBlueprint.bidder.splice(index);
-            burnedBlueprint.save();
-        }
-    }
-}
-
 
 
 

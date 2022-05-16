@@ -72,9 +72,10 @@ type Activity @entity{
 
 }
 
-type BurnedBlueprint @entity{
+type BidRefundHelper @entity{
   id: ID! # blueprintId
-  bidder: [String!]!
+  bidCount: Int!
+  readyForRefund: Boolean!
 
 }
 
@@ -103,6 +104,13 @@ type ClassLeaderBoard @entity {
 }
 
 
+type Rank @entity {
+  id: ID!
+  count: Int!
+  score: Int!
+}
 
-
-
+type RankingHelper @entity {
+  id: ID!
+  rankingCount: Int!
+}
