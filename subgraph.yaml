@@ -68,4 +68,23 @@ dataSources:
           handler: handleCombined
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer  
-      file: ./src/mapping.ts      
+      file: ./src/mapping.ts  
+  - kind: ethereum
+    name: Alchemy
+    network: fuji
+    source:
+      abi: AlchemyTree
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Element
+        - getElement
+      abis:
+        - name: AlchemyTree
+          file: ./abis/AlchemyTree.json
+      eventHandlers:
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: dummy 
+      file: ./src/mapping.ts

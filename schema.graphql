@@ -50,8 +50,7 @@ type Owner @entity{ # count entities somehow
 
 type Emoji @entity{ 
   id: ID!
-  count: Int!
-  
+  count: Int!  
 }
 
 type ScoreSalesVolume @entity{
@@ -108,6 +107,22 @@ type Rank @entity {
   id: ID!
   count: Int!
   score: Int!
+}
+
+type RankBPList @entity {
+  id: ID!
+  bpList : [Int!]!
+}
+
+type EmojiScoreInfo @entity {
+  id: ID!
+  score: Int!
+}
+
+type RankHelperBP @entity {
+  id: ID! # bp ID
+  inScoreExtraPoint: Int!
+  inScoreRank: Int!
 }
 
 type RankingHelper @entity {

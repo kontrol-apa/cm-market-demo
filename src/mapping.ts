@@ -13,7 +13,6 @@ import {
   UpdateBidEv
 } from "../generated/CloudMetropolisMarket/CloudMetropolisMarket"
 import {
-  BleuprintBurnEv,
   CMBlueprint,
   Combined,
   Transfer
