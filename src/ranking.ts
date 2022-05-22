@@ -2,7 +2,7 @@ import { Rank, RankingHelper, RankBPList, Blueprint, RankHelperBP, EmojiScoreInf
 import { log, TypedMap, TypedMapEntry, store, Address } from "@graphprotocol/graph-ts"
 import { AlchemyTree } from "../generated/Alchemy/AlchemyTree";
 const emojiScoreMapping: TypedMap<string, i32> = new TypedMap;
-const AlchemyTreeAddress: Address = Address.fromHexString("0xdead")
+const AlchemyTreeAddress = Address.fromHexString("0xdead")
 
 export function updateRankingAfterMint(score: i32): void {
     let helper = createOrGetRankingHelper(score);
