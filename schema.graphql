@@ -2,7 +2,7 @@ type Blueprint @entity {
   id: ID! # tokenID
   score : Int!
   scoreCategory: String!
-  emojiString: String
+  emojiString: String!
   listing : Listing @derivedFrom (field: "blueprint") 
   bids: [Bid!] @derivedFrom (field: "blueprint") 
   emojis: [EmojiLeaderBoard!]! 
@@ -117,6 +117,7 @@ type RankBPList @entity {
 type EmojiScoreInfo @entity {
   id: ID!
   score: Int!
+  tier: Int!
 }
 
 type RankHelperBP @entity {
@@ -129,3 +130,12 @@ type RankingHelper @entity {
   id: ID!
   rankingCount: Int!
 }
+
+type _Schema_
+  @fulltext(
+    name: "emojiSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "Blueprint", fields: [{ name: "emojiString" }] }]
+  )
+  
