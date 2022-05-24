@@ -1,7 +1,7 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
 import { UpdateSaleVolumePerScorePoint, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner,getOrCreateEmoji, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
-import { updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
+import { getTotalScore, organizeRankingsAfterBurn, organizeRankingsAfterMint, updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
 import {
   AcceptBidEv,
   AddListingEv,
@@ -22,6 +22,7 @@ import { Bid, Listing, Blueprint} from "../generated/schema"
 import { updateEmojiLeaderBoardsAfterAcceptBid, updateEmojiLeaderBoardsAddListing, updateEmojiLeaderBoardsAfterCombine, updateEmojiLeaderBoardsAfterMint, updateEmojiLeaderBoardsAfterSale, updateEmojiLeaderBoardsCancelListing, updateEmojiLeaderBoardsUpdateListing } from "./emojistats"
 import { updateClassesLeaderBoardAfterAcceptBid, getClassName, updateClasseseaderBoardAfterCombine, updateClassesLeaderBoardAddListing, createClassesLeaderBoardAfterMint, updateClassesLeaderBoardAfterSale, updateClassesLeaderBoardCancelListing } from "./classStats"
 import { decreaseBidCount, flagBurnedBlueprintForRefund, incrementBidCount } from "./refundHelper"
+import { RoleRevoked } from "../generated/AlchemyTree/AlchemyTree"
 
 const MARKETPLACE_ADDRESS: Address = Address.fromString('0x150Ce3479d786cD0d5e79Bb2e187F5D4639d1563')
 
@@ -185,6 +186,8 @@ export function handleCombined(event: Combined): void {
   updateClasseseaderBoardAfterCombine(outerBP!.score);
   updateRankingAfterBurn(innerBP!.score);
   updateRankingAfterBurn(outerBP!.score);
+  organizeRankingsAfterBurn(innerBP!, i32(parseInt(innerBP!.id)));
+  organizeRankingsAfterBurn(outerBP!, i32(parseInt(outerBP!.id)));
   
 
   let totalCombined = innerBP!.combined + outerBP!.combined + 1;
@@ -229,6 +232,7 @@ export function handleTransfer(event: Transfer): void {
     blueprint.scoreCategory = getClassName(blueprint.score)
     blueprint.owner = event.params.to.toHex()
     blueprint.combined = 0;
+    organizeRankingsAfterMint(blueprint, i32(parseInt(blueprint.id)))
     blueprint.save()
     statistics.totalBlueprint++;
     statistics.totalEmojiCount = statistics.totalEmojiCount + 5
@@ -252,5 +256,6 @@ export function handleTransfer(event: Transfer): void {
 
   statistics.save()
 }
+
 
 

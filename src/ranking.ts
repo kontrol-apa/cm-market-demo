@@ -1,8 +1,8 @@
 import { Rank, RankingHelper, RankBPList, Blueprint, RankHelperBP, EmojiScoreInfo } from "../generated/schema"
 import { log, TypedMap, TypedMapEntry, store, Address } from "@graphprotocol/graph-ts"
-import { AlchemyTree } from "../generated/Alchemy/AlchemyTree";
-const emojiScoreMapping: TypedMap<string, i32> = new TypedMap;
-const AlchemyTreeAddress = Address.fromHexString("0xdead")
+import { AlchemyTree } from "../generated/AlchemyTree/AlchemyTree";
+let emojiScoreMapping: TypedMap<string, string> = new TypedMap;
+const AlchemyTreeAddress = Address.fromString("0x79686Ae9A71a8Bd9589247EC26D1d526BAB67930");
 
 export function updateRankingAfterMint(score: i32): void {
     let helper = createOrGetRankingHelper(score);
@@ -60,29 +60,35 @@ function createRanking(score: i32): void {
 }
 
 
-function getTotalScore(bp: Blueprint): i32 {
+export function getTotalScore(bp: Blueprint): i32 {
     let totalScore = 0;
     for (let index = 0; index < bp.emojis.length; index++) {
         const emoji = bp.emojis[index];
-        let emojiTierScore = emojiScoreMapping.get(emoji)
-        if (!emojiTierScore) { // not in the cash
+        if (!emojiScoreMapping.isSet(emoji)) { // not in the cash
             let scoreInfo = EmojiScoreInfo.load(emoji);
             if (!scoreInfo) { // not even in store 
                 scoreInfo = new EmojiScoreInfo(emoji);
                 let contract = AlchemyTree.bind(AlchemyTreeAddress);
                 let element = contract.getElement(emoji);
                 scoreInfo.score = element.score.toI32();
-                emojiScoreMapping.set(emoji, scoreInfo.score);
-                totalScore += scoreInfo.score;
+                scoreInfo.tier = element.tier.toI32(); // this causes problems, if the new item is better than all, you get duplicates
+                emojiScoreMapping.set(emoji, (scoreInfo.score + scoreInfo.tier).toString()); 
+                totalScore += (scoreInfo.score + scoreInfo.tier);
+                //if(bp.score == 6 ) 
+                //log.error("totalScore : {}, bp score : {}", [totalScore.toString(), bp.score.toString()]);
                 scoreInfo.save();
             }
             else { // in store but somehow not in cash
-                emojiScoreMapping.set(emoji, scoreInfo.score);
-                totalScore += scoreInfo.score;
+                emojiScoreMapping.set(emoji, (scoreInfo.score + scoreInfo.tier).toString());
+                totalScore += (scoreInfo.score + scoreInfo.tier);
             }
         }
         else { // in cash
-            totalScore += emojiTierScore;
+            let emojiTierScore = emojiScoreMapping.get(emoji);
+            if (emojiTierScore) {
+                totalScore += I32.parseInt(emojiTierScore);
+            }
+
         }
     }
     totalScore *= 100; // emoji scores are more important than combined 
@@ -94,55 +100,93 @@ function getTotalScore(bp: Blueprint): i32 {
 export function organizeRankingsAfterMint(bp: Blueprint, id: i32): void { // do at mint
     let bpRankList = RankBPList.load(bp.score.toString());
     const totalScore = getTotalScore(bp);
-    if (bpRankList) {
+    if (bpRankList) { // if it exists
         let tempList = bpRankList.bpList;
         tempList.push(tempList[tempList.length - 1]); // add the last element to the end again
-        for (let index = tempList.length - 2; index >= 0; index--) { // iterate, start from the 
-            const element = tempList[index];
-            let helperBp = RankHelperBP.load(element.toString())
+        if (tempList.length == 2) {
+            let helperBp = RankHelperBP.load(tempList[0].toString())
+            let newHelper = new RankHelperBP(id.toString());
             if (totalScore > helperBp!.inScoreExtraPoint) {
-                helperBp!.inScoreRank++;
-                helperBp!.save();
-                tempList[index + 1] = element; // shifted, this element is now at the previous position
+                tempList[0] = id;
+                newHelper.inScoreRank = 0;
+                helperBp!.inScoreRank = 1;
             }
-            else { // we are at the correct place
-                tempList[index + 1] = id; // put the new one to the  index before
+            else {
+                tempList[1] = id;
+                newHelper.inScoreRank = 1;
+            }
+            // the new rank in score
+            newHelper.inScoreExtraPoint = totalScore;
+            newHelper.save();
+        }
+        else {
+            for (let index = tempList.length - 2; index >= 0; index--) { // iterate, start from the 
+                const element = tempList[index];
+                let helperBp = RankHelperBP.load(element.toString())
+                if (totalScore > helperBp!.inScoreExtraPoint) {
+                    helperBp!.inScoreRank++;
+                    helperBp!.save();
+                    tempList[index + 1] = element; // shifted, this element is now at the previous position
+                }
+                else { // we are at the correct place
+                    tempList[index + 1] = id; // put the new one to the  index before
+                    let newHelper = new RankHelperBP(id.toString());
+                    newHelper.inScoreRank = index + 1; // the new rank in score
+                    newHelper.inScoreExtraPoint = totalScore;
+                    newHelper.save();
+                    break;
+                }
+            }
+            if(tempList[0] == tempList [1]){
+                tempList[0] = id;
                 let newHelper = new RankHelperBP(id.toString());
-                newHelper.inScoreRank = index + 1; // the new rank in score
+                newHelper.inScoreRank = 0; // the new rank in score
                 newHelper.inScoreExtraPoint = totalScore;
                 newHelper.save();
-                break;
             }
         }
         bpRankList.bpList = tempList; // reset
         bpRankList.save();
     }
     else {
-        let x = new RankBPList(bp.score.toString());
-        x.bpList = [id];
-        x.save();
+        bpRankList = new RankBPList(bp.score.toString());
+        bpRankList.bpList = [id];
+        bpRankList.save();
         let newHelper = new RankHelperBP(id.toString());
         newHelper.inScoreRank = 0;
         newHelper.inScoreExtraPoint = totalScore;
         newHelper.save();
 
     }
+    if(bp.score == 6 ) 
+    log.error("Score : {} ,Minted : {} list {} ", [bp.score.toString(), id.toString(), bpRankList.bpList.toString()])
 }
 
-export function organizeRankingsAfterBurn(bp: Blueprint, id: i32) : void {
+export function organizeRankingsAfterBurn(bp: Blueprint, id: i32): void {
+    log.error("Burned : {} ", [id.toString()])
     let bpRankList = RankBPList.load(bp.score.toString());
-    const totalScore = getTotalScore(bp); // calculate TODO
     if (bpRankList) { // it should be here
         let tempList = bpRankList.bpList;
-        let i = tempList.indexOf(id);
-        for (let index = i + 1; index < tempList.length; index++) {
-            tempList[i] = tempList[index];
-            let helperBp = RankHelperBP.load(tempList[index].toString())
-            helperBp!.inScoreRank--; // shift everything
-            helperBp!.save();
+        if (id === tempList[tempList.length - 1]) {
+            tempList.pop();
+            store.remove('RankHelperBP', id.toString());
         }
-        tempList.pop(); // 
-        store.remove('RankHelperBP', id.toString());
+        else {
+            let indexOfTheBurned = tempList.indexOf(id);
+            for (let index = indexOfTheBurned + 1; index < tempList.length; index++) {
+                tempList[indexOfTheBurned] = tempList[index];
+                let helperBp = RankHelperBP.load(tempList[index].toString());
+                helperBp!.inScoreRank--; // shift everything
+                helperBp!.save();
+            }
+            tempList.pop(); // 
+            store.remove('RankHelperBP', id.toString());
+        }
+        if (tempList.length == 0) {
+            log.error("Len : {} ", [tempList.length.toString()])
+            store.remove('RankBPList', bp.score.toString())
+            return;
+        }
         bpRankList.bpList = tempList; // reset
         bpRankList.save();
     }

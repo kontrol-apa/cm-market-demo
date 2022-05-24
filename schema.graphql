@@ -9,7 +9,6 @@ type Blueprint @entity {
   owner: String
   history: [Activity!] @derivedFrom (field: "blueprint")
   combined: Int!
-  
 }
 
 
