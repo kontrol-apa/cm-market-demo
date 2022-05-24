@@ -1,7 +1,7 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
 import { UpdateSaleVolumePerScorePoint, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner,getOrCreateEmoji, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
-import { getTotalScore, organizeRankingsAfterBurn, organizeRankingsAfterMint, updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
+import { fixCombinedScore, getTotalScore, organizeRankingsAfterBurn, organizeRankingsAfterMint, updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
 import {
   AcceptBidEv,
   AddListingEv,
@@ -195,6 +195,7 @@ export function handleCombined(event: Combined): void {
   if (mintedBp) {
     mintedBp.combined = totalCombined;
     mintedBp.save();
+    fixCombinedScore(mintedBp,I32.parseInt(mintedBp.id));
   }
   else {
     log.error("Unexpected null entity at {}", ['Combine'])

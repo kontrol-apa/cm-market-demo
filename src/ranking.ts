@@ -71,11 +71,9 @@ export function getTotalScore(bp: Blueprint): i32 {
                 let contract = AlchemyTree.bind(AlchemyTreeAddress);
                 let element = contract.getElement(emoji);
                 scoreInfo.score = element.score.toI32();
-                scoreInfo.tier = element.tier.toI32(); // this causes problems, if the new item is better than all, you get duplicates
-                emojiScoreMapping.set(emoji, (scoreInfo.score + scoreInfo.tier).toString()); 
+                scoreInfo.tier = element.tier.toI32(); 
+                emojiScoreMapping.set(emoji, (scoreInfo.score + scoreInfo.tier).toString());
                 totalScore += (scoreInfo.score + scoreInfo.tier);
-                //if(bp.score == 6 ) 
-                //log.error("totalScore : {}, bp score : {}", [totalScore.toString(), bp.score.toString()]);
                 scoreInfo.save();
             }
             else { // in store but somehow not in cash
@@ -95,6 +93,49 @@ export function getTotalScore(bp: Blueprint): i32 {
     totalScore += bp.combined;
     return totalScore;
 
+}
+
+export function fixCombinedScore(bp: Blueprint, id:i32) : void {
+    let bpRankList = RankBPList.load(bp.score.toString());
+    const totalScore = getTotalScore(bp);
+    if (bpRankList) { // if it exists
+        let tempList = bpRankList.bpList;
+        let indexOfCombined = tempList.indexOf(id);
+        let newHelper = RankHelperBP.load(id.toString());
+         // the new rank in score
+        newHelper!.inScoreExtraPoint = totalScore;
+        newHelper!.save();
+        if(indexOfCombined == 0 ){
+            return; // only update the inScore
+        }
+        log.error("Before: {}", [tempList.toString()])
+        for (let index = indexOfCombined; index > 0; index--) {
+            let current = RankHelperBP.load(tempList[index].toString());
+            let next = RankHelperBP.load((tempList[index-1]).toString()); // check if 0
+            if(current!.inScoreExtraPoint > next!.inScoreExtraPoint){
+                let swap = tempList[index];
+                tempList[index] = tempList[index-1];
+                tempList[index-1] = swap;
+                current!.inScoreRank++;
+                next!.inScoreRank--;
+                current!.save();
+                next!.save(); 
+
+            }
+            else {
+                break; // no need to look furter, the score has been updated but it didnt move
+            }
+            
+        }
+        log.error("After: {} ", [tempList.toString()])
+
+        bpRankList.bpList = tempList;
+        bpRankList.save();
+
+    }   
+    else {
+        log.error("{}", ["it must exist!"])
+    }  
 }
 
 export function organizeRankingsAfterMint(bp: Blueprint, id: i32): void { // do at mint
@@ -137,7 +178,7 @@ export function organizeRankingsAfterMint(bp: Blueprint, id: i32): void { // do 
                     break;
                 }
             }
-            if(tempList[0] == tempList [1]){
+            if (tempList[0] == tempList[1]) {
                 tempList[0] = id;
                 let newHelper = new RankHelperBP(id.toString());
                 newHelper.inScoreRank = 0; // the new rank in score
@@ -158,12 +199,9 @@ export function organizeRankingsAfterMint(bp: Blueprint, id: i32): void { // do 
         newHelper.save();
 
     }
-    if(bp.score == 6 ) 
-    log.error("Score : {} ,Minted : {} list {} ", [bp.score.toString(), id.toString(), bpRankList.bpList.toString()])
 }
 
 export function organizeRankingsAfterBurn(bp: Blueprint, id: i32): void {
-    log.error("Burned : {} ", [id.toString()])
     let bpRankList = RankBPList.load(bp.score.toString());
     if (bpRankList) { // it should be here
         let tempList = bpRankList.bpList;
@@ -183,7 +221,6 @@ export function organizeRankingsAfterBurn(bp: Blueprint, id: i32): void {
             store.remove('RankHelperBP', id.toString());
         }
         if (tempList.length == 0) {
-            log.error("Len : {} ", [tempList.length.toString()])
             store.remove('RankBPList', bp.score.toString())
             return;
         }
