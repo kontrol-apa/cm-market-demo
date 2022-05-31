@@ -9,6 +9,8 @@ type Blueprint @entity {
   owner: String
   history: [Activity!] @derivedFrom (field: "blueprint")
   combined: Int!
+  hasBids: Boolean!
+  listed: Boolean!
 }
 
 
@@ -89,6 +91,7 @@ type EmojiLeaderBoard @entity {
   floor: BigInt!
   available : Int!
   avarageSale : BigInt!
+  totalSold: Int!
   totalVolume: BigInt!
   blueprints: [Blueprint!]! @derivedFrom(field: "emojis") # reverse look up from a list
 }
@@ -98,6 +101,7 @@ type ClassLeaderBoard @entity {
   suply: Int! # out for nowfloor: BigInt
   available : Int!
   avarageSale : BigInt!
+  totalSold: Int!
   totalVolume: BigInt!
 }
 

@@ -32,7 +32,9 @@ function createEmojiLeaderBoardAfterMint(emojiName: string): void {
         emojiStats.available = 0;
         emojiStats.avarageSale = BigInt.fromI32(0);
         emojiStats.totalVolume = BigInt.fromI32(0);
+        emojiStats.totalSold = 0;
         emojiStats.save();
+
     }
     else { // another bp with the same emoji exists
         emojiStats.suply += 1;
@@ -95,8 +97,10 @@ function updateEmojiLeaderBoardAfterSale(emojiName: string, price: BigInt): void
         emojiStats.floor = findFloor(emojiName, price);
     }
     emojiStats.totalVolume = emojiStats.totalVolume.plus(price);
-    emojiStats.avarageSale = emojiStats.totalVolume.div(BigInt.fromI32(emojiStats.suply));
+    emojiStats.totalSold++;
+    emojiStats.avarageSale = emojiStats.totalVolume.div(BigInt.fromI32(emojiStats.totalSold));
     emojiStats.available -=1;
+
     emojiStats.save();
 
 }
@@ -105,7 +109,8 @@ function updateEmojiLeaderBoardAfterSale(emojiName: string, price: BigInt): void
 function updateEmojiLeaderBoardAfterAcceptBid(emojiName: string, price: BigInt): void {
     let emojiStats = EmojiLeaderBoard.load(emojiName) as EmojiLeaderBoard;
     emojiStats.totalVolume = emojiStats.totalVolume.plus(price);
-    emojiStats.avarageSale = emojiStats.totalVolume.div(BigInt.fromI32(emojiStats.suply));
+    emojiStats.totalSold++;
+    emojiStats.avarageSale = emojiStats.totalVolume.div(BigInt.fromI32(emojiStats.totalSold));
     emojiStats.save();
 
 }

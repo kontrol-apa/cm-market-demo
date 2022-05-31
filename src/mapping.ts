@@ -34,8 +34,13 @@ export function handleCreateBidEv(event: CreateBidEv): void {
   entity.bidPrice = event.params.bidPrice
   entity.owner = event.params.owner.toHex()
   entity.tokenID = event.params.tokenId
-  entity.blueprint = event.params.tokenId.toHex()
+  entity.blueprint = event.params.tokenId.toHex();
   incrementBidCount(event.params.tokenId.toHex());
+  let bp = Blueprint.load(event.params.tokenId.toHex());
+  if(bp){
+    bp.hasBids = true;
+    bp.save();
+  }
   registerPlaceBidActivity(event);
   entity.save()
 
@@ -45,7 +50,14 @@ export function handleCancelBidEv(event: CancelBidEv): void {
   let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
   const canceledBid = Bid.load(name);
   if(canceledBid){
-    decreaseBidCount(event.params.tokenId.toHex());
+    const remaining = decreaseBidCount(event.params.tokenId.toHex());
+    if(remaining == 0){
+      let bp = Blueprint.load(event.params.tokenId.toHex());
+      if(bp){
+        bp.hasBids = false;
+        bp.save();
+      }
+    }
     registerCancelBidActivity(event);
   }
   else {
@@ -86,8 +98,14 @@ export function handleAcceptBidEv(event: AcceptBidEv): void {
   registerAcceptBidActivity(event, bid!.bidPrice);
   updateEmojiLeaderBoardsAfterAcceptBid(blueprint!.emojis, bid!.bidPrice);
   updateClassesLeaderBoardAfterAcceptBid(blueprint!.score, bid!.bidPrice);
-  decreaseBidCount(event.params.tokenId.toHex());
-  
+  const remaining = decreaseBidCount(event.params.tokenId.toHex());
+  if(remaining == 0){
+    let bp = Blueprint.load(event.params.tokenId.toHex());
+    if(bp){
+      bp.hasBids = false;
+      bp.save();
+    }
+  }
   store.remove('Bid', name)
 
 }
@@ -103,6 +121,8 @@ export function handleAddListingEv(event: AddListingEv): void {
   
   registerAddListingActivity(event);
   let blueprint = Blueprint.load(entity.blueprint);
+  blueprint!.listed = true;
+  blueprint!.save();
   updateEmojiPricesList(blueprint!.emojis,  entity.price )
 
   updateEmojiLeaderBoardsAddListing(blueprint!.emojis, entity.price);
@@ -113,11 +133,13 @@ export function handleAddListingEv(event: AddListingEv): void {
 export function handleCancelListingEv(event: CancelListingEv): void {
   let listing = Listing.load(event.params.tokenId.toHex())
   let blueprint = Blueprint.load(listing!.blueprint);
+  blueprint!.listed = false;
   removeEmojiPricesList(blueprint!.emojis, listing!.price)
   updateEmojiLeaderBoardsCancelListing(blueprint!.emojis, listing!.price);
   updateClassesLeaderBoardCancelListing(blueprint!.score, listing!.price);
   registerCancelListingActivity(event);
-  store.remove('Listing', event.params.tokenId.toHex())
+  store.remove('Listing', event.params.tokenId.toHex());
+  blueprint!.save();
 
 }
 
@@ -126,6 +148,7 @@ export function handleFulfillListingEv(event: FulfillListingEv): void {
   let statistics = getOrCreateStatistics();
   statistics.totalVolume = statistics.totalVolume.plus(listing!.price);
   let blueprint = Blueprint.load(listing!.blueprint);
+  blueprint!.listed = false;
   blueprint!.owner = event.transaction.from.toHex()
   removeOwner(Address.fromString(listing!.owner), statistics)
   addOwnerandUpdateStatistics(event.transaction.from, statistics)
@@ -228,6 +251,8 @@ export function handleTransfer(event: Transfer): void {
     blueprint.emojis = [bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]
     blueprint.emojiString = bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4
     blueprint.score = bp.value5.toI32()
+    blueprint.hasBids = false;
+    blueprint.listed = false;
     updateRankingAfterMint(bp.value5.toI32());
 
     blueprint.scoreCategory = getClassName(blueprint.score)

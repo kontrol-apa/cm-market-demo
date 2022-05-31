@@ -16,10 +16,11 @@ export function incrementBidCount(id: string): void {
 }
 
 
-export function decreaseBidCount(id: string): void {
+export function decreaseBidCount(id: string): i32 {
     let refundHelper = BidRefundHelper.load(id);
     if(!refundHelper){
             log.error("Refund helper doesnt exist! ", [])
+            return -1;
     }
     else {
         if(refundHelper.bidCount == 1) {
@@ -28,9 +29,10 @@ export function decreaseBidCount(id: string): void {
         else {
             refundHelper.bidCount--;
             refundHelper.save();
-        }        
+        } 
+        return (refundHelper.bidCount -1);       
     }
-
+    
 }
 
 export function flagBurnedBlueprintForRefund(id: string) : void {

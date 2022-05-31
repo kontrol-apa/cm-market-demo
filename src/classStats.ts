@@ -10,6 +10,7 @@ export function createClassesLeaderBoardAfterMint(BpScore: i32): void {
         classStats.available = 0;
         classStats.avarageSale = BigInt.fromI32(0);
         classStats.totalVolume = BigInt.fromI32(0);
+        classStats.totalSold = 0;
         classStats.save();
     }
     else {
@@ -30,7 +31,8 @@ export function updateClassesLeaderBoardAfterSale(BpScore: i32, price: BigInt): 
     let className = getClassName(BpScore);
     let classStats = ClassLeaderBoard.load(className) as ClassLeaderBoard;
     classStats.totalVolume = classStats.totalVolume.plus(price);
-    classStats.avarageSale =  classStats.totalVolume.div(BigInt.fromI32(classStats.suply));
+    classStats.totalSold++;
+    classStats.avarageSale =  classStats.totalVolume.div(BigInt.fromI32(classStats.totalSold));
     classStats.available -= 1;
     classStats.save();
     
@@ -40,7 +42,8 @@ export function updateClassesLeaderBoardAfterAcceptBid(BpScore: i32, price: BigI
     let className = getClassName(BpScore);
     let classStats = ClassLeaderBoard.load(className) as ClassLeaderBoard;
     classStats.totalVolume = classStats.totalVolume.plus(price);
-    classStats.avarageSale =  classStats.totalVolume.div(BigInt.fromI32(classStats.suply));
+    classStats.totalSold++;
+    classStats.avarageSale =  classStats.totalVolume.div(BigInt.fromI32(classStats.totalSold));
     classStats.save();
     
 }
@@ -60,7 +63,7 @@ export function updateClassesLeaderBoardCancelListing(BpScore: i32, price: BigIn
     classStats.save();
     // all of the other stats are not affected since something combinbed can not be on the market hence no floor etc
 }
-
+//TODO get real numbers
 export function getClassName(BpScore: i32): string {
     if (BpScore < 24) {
         return "Common";
