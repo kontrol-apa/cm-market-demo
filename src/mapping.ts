@@ -18,7 +18,7 @@ import {
   Transfer
 } from "../generated/CMBlueprint/CMBlueprint"
 
-import { Bid, Listing, Blueprint} from "../generated/schema"
+import { Bid, Blueprint} from "../generated/schema"
 import { updateEmojiLeaderBoardsAfterAcceptBid, updateEmojiLeaderBoardsAddListing, updateEmojiLeaderBoardsAfterCombine, updateEmojiLeaderBoardsAfterMint, updateEmojiLeaderBoardsAfterSale, updateEmojiLeaderBoardsCancelListing, updateEmojiLeaderBoardsUpdateListing } from "./emojistats"
 import { updateClassesLeaderBoardAfterAcceptBid, getClassName, updateClasseseaderBoardAfterCombine, updateClassesLeaderBoardAddListing, createClassesLeaderBoardAfterMint, updateClassesLeaderBoardAfterSale, updateClassesLeaderBoardCancelListing } from "./classStats"
 import { decreaseBidCount, flagBurnedBlueprintForRefund, incrementBidCount } from "./refundHelper"
@@ -112,71 +112,60 @@ export function handleAcceptBidEv(event: AcceptBidEv): void {
 
 //    event AddListingEv(uint256 listingId, uint256 indexed tokenId, uint256 price);
 export function handleAddListingEv(event: AddListingEv): void {
-  let entity = new Listing(event.params.tokenId.toHex())
-  entity.price = event.params.price
-  entity.owner = event.transaction.from.toHex()
-  entity.tokenID = event.params.tokenId
-  entity.blueprint = event.params.tokenId.toHex()
-  entity.save()
-  
   registerAddListingActivity(event);
-  let blueprint = Blueprint.load(entity.blueprint);
+  let blueprint = Blueprint.load(event.params.tokenId.toHex());
   blueprint!.listed = true;
+  blueprint!.price = event.params.price;
   blueprint!.save();
-  updateEmojiPricesList(blueprint!.emojis,  entity.price )
-
-  updateEmojiLeaderBoardsAddListing(blueprint!.emojis, entity.price);
-  updateClassesLeaderBoardAddListing(blueprint!.score, entity.price);
+  updateEmojiPricesList(blueprint!.emojis,  event.params.price)
+  updateEmojiLeaderBoardsAddListing(blueprint!.emojis, event.params.price);
+  updateClassesLeaderBoardAddListing(blueprint!.score, event.params.price);
 
 }
 
 export function handleCancelListingEv(event: CancelListingEv): void {
-  let listing = Listing.load(event.params.tokenId.toHex())
-  let blueprint = Blueprint.load(listing!.blueprint);
+  let blueprint = Blueprint.load(event.params.tokenId.toHex());
   blueprint!.listed = false;
-  removeEmojiPricesList(blueprint!.emojis, listing!.price)
-  updateEmojiLeaderBoardsCancelListing(blueprint!.emojis, listing!.price);
-  updateClassesLeaderBoardCancelListing(blueprint!.score, listing!.price);
+  const oldPrice = blueprint!.price;
+  blueprint!.price = BigInt.zero();
+  removeEmojiPricesList(blueprint!.emojis,oldPrice);
+  updateEmojiLeaderBoardsCancelListing(blueprint!.emojis, oldPrice);
+  updateClassesLeaderBoardCancelListing(blueprint!.score, oldPrice);
   registerCancelListingActivity(event);
-  store.remove('Listing', event.params.tokenId.toHex());
   blueprint!.save();
 
 }
 
 export function handleFulfillListingEv(event: FulfillListingEv): void {
-  let listing = Listing.load(event.params.tokenId.toHex())
   let statistics = getOrCreateStatistics();
-  statistics.totalVolume = statistics.totalVolume.plus(listing!.price);
-  let blueprint = Blueprint.load(listing!.blueprint);
+  let blueprint = Blueprint.load(event.params.tokenId.toHex());
+  const oldPrice = blueprint!.price;
+  statistics.totalVolume = statistics.totalVolume.plus(oldPrice);
   blueprint!.listed = false;
-  blueprint!.owner = event.transaction.from.toHex()
-  removeOwner(Address.fromString(listing!.owner), statistics)
+  blueprint!.price = BigInt.zero();
+  blueprint!.owner = event.transaction.from.toHex();
+  removeOwner(Address.fromString(blueprint!.owner), statistics)
   addOwnerandUpdateStatistics(event.transaction.from, statistics)
   blueprint!.save()
   statistics.save()
-  removeEmojiPricesList(blueprint!.emojis, listing!.price);
-  UpdateSaleVolumePerScorePoint(blueprint!.score, listing!.price);
-  registerFullfillActivity(event, listing!.owner);
-  store.remove('Listing', event.params.tokenId.toHex())
-  updateEmojiLeaderBoardsAfterSale(blueprint!.emojis, listing!.price);
-  updateClassesLeaderBoardAfterSale(blueprint!.score, listing!.price);
+  removeEmojiPricesList(blueprint!.emojis, oldPrice);
+  UpdateSaleVolumePerScorePoint(blueprint!.score, oldPrice);
+  registerFullfillActivity(event, blueprint!.owner);
+  updateEmojiLeaderBoardsAfterSale(blueprint!.emojis, oldPrice);
+  updateClassesLeaderBoardAfterSale(blueprint!.score, oldPrice);
 
 }
 
 export function handleUpdateListingEv(event: UpdateListingEv): void {
-  let listing = Listing.load(event.params.tokenId.toHex())
-  if (listing) {
-    let blueprint = Blueprint.load(listing.blueprint);
-    removeEmojiPricesList(blueprint!.emojis, listing.price);
-    updateEmojiPricesList(blueprint!.emojis, listing.price);
-    updateEmojiLeaderBoardsUpdateListing(blueprint!.emojis, listing.price);
+    let blueprint = Blueprint.load(event.params.tokenId.toHex());
+    const oldPrice = blueprint!.price;
+    blueprint!.price = event.params.price;
+    blueprint!.save();
+    removeEmojiPricesList(blueprint!.emojis,oldPrice);
+    updateEmojiPricesList(blueprint!.emojis, event.params.price);
+    updateEmojiLeaderBoardsUpdateListing(blueprint!.emojis, event.params.price);
     registerUpdateListingActivity(event);
-    listing.price = event.params.price
-    listing.save()
-  }
-  else {
-    log.error("Unexpected null entity at {}", ['handleUpdateListingEv'])
-  }
+
 }
 
 export function handleCombined(event: Combined): void {
@@ -250,9 +239,17 @@ export function handleTransfer(event: Transfer): void {
     updateEmojiLeaderBoardsAfterMint([bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]);
     blueprint.emojis = [bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]
     blueprint.emojiString = bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4
+    const x1 = bp.value0.replace('\u{fe0f}', '');
+    const x2 = bp.value1.replace('\u{fe0f}', '');
+    const x3 = bp.value2.replace('\u{fe0f}', '');
+    const x4 = bp.value3.replace('\u{fe0f}', '');
+    const x5 = bp.value4.replace('\u{fe0f}', '');
+    blueprint.emojiStringParsed = x1 + x2 + x3 + x4 + x5;
+
     blueprint.score = bp.value5.toI32()
     blueprint.hasBids = false;
     blueprint.listed = false;
+    blueprint.price = BigInt.zero();
     updateRankingAfterMint(bp.value5.toI32());
 
     blueprint.scoreCategory = getClassName(blueprint.score)

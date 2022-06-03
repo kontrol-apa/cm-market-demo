@@ -3,14 +3,16 @@ type Blueprint @entity {
   score : Int!
   scoreCategory: String!
   emojiString: String!
-  listing : Listing @derivedFrom (field: "blueprint") 
+  emojiStringParsed: String!
   bids: [Bid!] @derivedFrom (field: "blueprint") 
   emojis: [EmojiLeaderBoard!]! 
-  owner: String
+  owner: String!
   history: [Activity!] @derivedFrom (field: "blueprint")
   combined: Int!
   hasBids: Boolean!
   listed: Boolean!
+  price : BigInt!
+
 }
 
 
@@ -21,15 +23,6 @@ type Bid @entity {
   bidder : String!
   owner : String!
   blueprint: Blueprint
-}
-
-type Listing @entity {
-  id: ID! # ListingId
-  tokenID : BigInt!
-  owner : String!
-  price : BigInt!
-  blueprint: Blueprint!
-
 }
 
 
@@ -134,11 +127,4 @@ type RankingHelper @entity {
   rankingCount: Int!
 }
 
-type _Schema_
-  @fulltext(
-    name: "emojiSearch"
-    language: en
-    algorithm: rank
-    include: [{ entity: "Blueprint", fields: [{ name: "emojiString" }] }]
-  )
   
