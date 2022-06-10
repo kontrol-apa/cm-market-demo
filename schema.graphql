@@ -12,6 +12,7 @@ type Blueprint @entity {
   hasBids: Boolean!
   listed: Boolean!
   price : BigInt!
+  searchString: String!
 
 }
 

@@ -91,9 +91,8 @@ export function handleAcceptBidEv(event: AcceptBidEv): void {
   }
   let statistics = getOrCreateStatistics();
   statistics.totalVolume = statistics.totalVolume.plus(bid!.bidPrice);
-
   removeOwner(Address.fromString(bid!.owner), statistics)
-  addOwnerandUpdateStatistics(event.transaction.from, statistics)
+  addOwnerandUpdateStatistics(event.params.buyer, statistics);
   statistics.save()
   registerAcceptBidActivity(event, bid!.bidPrice);
   updateEmojiLeaderBoardsAfterAcceptBid(blueprint!.emojis, bid!.bidPrice);
@@ -238,13 +237,18 @@ export function handleTransfer(event: Transfer): void {
     registerEmojis([bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]) // might be redundant 
     updateEmojiLeaderBoardsAfterMint([bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]);
     blueprint.emojis = [bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]
-    blueprint.emojiString = bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4
+    //blueprint.emojiString = bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4
     const x1 = bp.value0.replace('\u{fe0f}', '');
     const x2 = bp.value1.replace('\u{fe0f}', '');
     const x3 = bp.value2.replace('\u{fe0f}', '');
     const x4 = bp.value3.replace('\u{fe0f}', '');
     const x5 = bp.value4.replace('\u{fe0f}', '');
     blueprint.emojiStringParsed = x1 + x2 + x3 + x4 + x5;
+    blueprint.searchString = '+' + bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4 + '+'
+    blueprint.searchString += bp.value4 + bp.value0 + bp.value1 + bp.value2 + bp.value3 + '+'
+    blueprint.searchString += bp.value3 + bp.value4 + bp.value0 + bp.value1 + bp.value2 + '+'
+    blueprint.searchString += bp.value2 + bp.value3 + bp.value4 + bp.value0 + bp.value1 + '+'
+    blueprint.searchString += bp.value1 + bp.value2 + bp.value3 + bp.value4 + bp.value0 + '+'
 
     blueprint.score = bp.value5.toI32()
     blueprint.hasBids = false;
