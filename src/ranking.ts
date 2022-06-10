@@ -62,8 +62,8 @@ function createRanking(score: i32): void {
 
 export function getTotalScore(bp: Blueprint): i32 {
     let totalScore = 0;
-    for (let index = 0; index < bp.emojis.length; index++) {
-        const emoji = bp.emojis[index];
+    for (let index = 0; index < bp.emojisWithFEOF.length; index++) {
+        const emoji = bp.emojisWithFEOF[index];
         if (!emojiScoreMapping.isSet(emoji)) { // not in the cash
             let scoreInfo = EmojiScoreInfo.load(emoji);
             if (!scoreInfo) { // not even in store 
@@ -108,7 +108,6 @@ export function fixCombinedScore(bp: Blueprint, id:i32) : void {
         if(indexOfCombined == 0 ){
             return; // only update the inScore
         }
-        log.error("Before: {}", [tempList.toString()])
         for (let index = indexOfCombined; index > 0; index--) {
             let current = RankHelperBP.load(tempList[index].toString());
             let next = RankHelperBP.load((tempList[index-1]).toString()); // check if 0
@@ -127,8 +126,6 @@ export function fixCombinedScore(bp: Blueprint, id:i32) : void {
             }
             
         }
-        log.error("After: {} ", [tempList.toString()])
-
         bpRankList.bpList = tempList;
         bpRankList.save();
 

@@ -1,6 +1,7 @@
 type Blueprint @entity {
   id: ID! # tokenID
   score : Int!
+  numericId: Int!
   scoreCategory: String!
   emojiString: String!
   emojiStringParsed: String!
@@ -13,6 +14,7 @@ type Blueprint @entity {
   listed: Boolean!
   price : BigInt!
   searchString: String!
+  emojisWithFEOF: [String!]!
 
 }
 

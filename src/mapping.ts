@@ -231,24 +231,27 @@ export function handleTransfer(event: Transfer): void {
     /** Contract Calls **/
     let contract = CMBlueprint.bind(event.address)
     let bp = contract.getTokenAttributes(event.params.id)
+    blueprint.emojisWithFEOF = [bp.value0, bp.value1, bp.value2, bp.value3, bp.value4];
     addOwnerandUpdateStatistics(event.params.to, statistics);
-    // 
-    //log.info('EMojis: {}, {}, {}', [bp.value0.toString(), bp.value1.toString(),  bp.value2.toString() ])
-    registerEmojis([bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]) // might be redundant 
-    updateEmojiLeaderBoardsAfterMint([bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]);
-    blueprint.emojis = [bp.value0, bp.value1, bp.value2, bp.value3, bp.value4]
-    //blueprint.emojiString = bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4
-    const x1 = bp.value0.replace('\u{fe0f}', '');
-    const x2 = bp.value1.replace('\u{fe0f}', '');
-    const x3 = bp.value2.replace('\u{fe0f}', '');
-    const x4 = bp.value3.replace('\u{fe0f}', '');
-    const x5 = bp.value4.replace('\u{fe0f}', '');
-    blueprint.emojiStringParsed = x1 + x2 + x3 + x4 + x5;
-    blueprint.searchString = '+' + bp.value0 + bp.value1 + bp.value2 + bp.value3 + bp.value4 + '+'
-    blueprint.searchString += bp.value4 + bp.value0 + bp.value1 + bp.value2 + bp.value3 + '+'
-    blueprint.searchString += bp.value3 + bp.value4 + bp.value0 + bp.value1 + bp.value2 + '+'
-    blueprint.searchString += bp.value2 + bp.value3 + bp.value4 + bp.value0 + bp.value1 + '+'
-    blueprint.searchString += bp.value1 + bp.value2 + bp.value3 + bp.value4 + bp.value0 + '+'
+    const e1 = bp.value0.replace('\u{fe0f}', '');
+    const e2 = bp.value1.replace('\u{fe0f}', '');
+    const e3 = bp.value2.replace('\u{fe0f}', '');
+    const e4 = bp.value3.replace('\u{fe0f}', '');
+    const e5 = bp.value4.replace('\u{fe0f}', '');
+    blueprint.emojiString = e1 + e2 + e3 + e4 + e5;
+    blueprint.emojis = [e1,e2,e3,e4,e5];
+    blueprint.numericId = event.params.id.toI32();
+
+    
+    registerEmojis([e1, e2, e3, e4, e5]) // might be redundant 
+    updateEmojiLeaderBoardsAfterMint([e1, e2, e3, e4, e5]);
+
+    blueprint.emojiStringParsed = e1 + e2 + e3 + e4 + e5;
+    blueprint.searchString = '+' + e1 + e2 + e3 + e4 + e5 + '+';
+    blueprint.searchString += e5 + e1 + e2 + e3 + e4 + '+';
+    blueprint.searchString += e4 + e5 + e1 + e2 + e3 + '+';
+    blueprint.searchString += e3 + e4 + e5 + e1 + e2 + '+';
+    blueprint.searchString += e2 + e3 + e4 + e5 + e1 + '+';
 
     blueprint.score = bp.value5.toI32()
     blueprint.hasBids = false;
