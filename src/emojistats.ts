@@ -1,13 +1,16 @@
 import {EmojiLeaderBoard, EmojiPricesList } from "../generated/schema"
 import { BigInt, log } from "@graphprotocol/graph-ts"
 
-
-function findFloor(emojiName: string, oldFloorPrice: BigInt): BigInt {
+/**
+ * Does a standart minimum search in a unsorted list
+ * @param emojiName : Emoji name (FEOF stripped) 
+ * @returns new floor price of the given emoji.
+ */
+function findFloor(emojiName: string): BigInt {
     let emojiPricelist = EmojiPricesList.load(emojiName);
-    let priceList = emojiPricelist!.prices
+    const priceList = emojiPricelist!.prices
     let floor = BigInt.fromString("10000000000000000000000"); // 1000 eth
     if (priceList) {
-        
         for (let x: u32 = 0; x < u32(priceList.length); ++x) {
             if (priceList[x] < floor) {
                 floor = priceList[x];
@@ -18,7 +21,7 @@ function findFloor(emojiName: string, oldFloorPrice: BigInt): BigInt {
         log.error("{}",["pricesList is empty!"])
     }
     if (floor.equals(BigInt.fromString("10000000000000000000000"))) {
-        floor = BigInt.zero()
+        floor = BigInt.zero();
     }
     return floor;
 
@@ -58,11 +61,11 @@ function updateEmojiLeaderBoardAfterCombine(emojiName: string): void {
 
 function updateEmojiLeaderBoardUpdateListing(emojiName: string, price: BigInt): void {
     let emojiStats = EmojiLeaderBoard.load(emojiName) as EmojiLeaderBoard;
-    if (price < emojiStats.floor) {
+    if (price < emojiStats.floor) { // you have a new floor
         emojiStats.floor = price;
     }
     else if (price == emojiStats.floor) { // now you will need a correction, find second lowest -> necessary for Update & Cancel
-        emojiStats.floor = findFloor(emojiName, price);
+        emojiStats.floor = findFloor(emojiName);
     }
     emojiStats.save();
 
@@ -72,7 +75,7 @@ function updateEmojiLeaderBoardUpdateListing(emojiName: string, price: BigInt): 
 function updateEmojiLeaderBoardUpCancelListing(emojiName: string, price: BigInt): void {
     let emojiStats = EmojiLeaderBoard.load(emojiName) as EmojiLeaderBoard;
     if (price == emojiStats.floor) { // now you will need a correction, find second lowest -> necessary for Update & Cancel
-        emojiStats.floor = findFloor(emojiName, price);
+        emojiStats.floor = findFloor(emojiName);
     }
     emojiStats.available -= 1;
     emojiStats.save();
@@ -93,8 +96,8 @@ function updateEmojiLeaderBoardAddListing(emojiName: string, price: BigInt): voi
 
 function updateEmojiLeaderBoardAfterSale(emojiName: string, price: BigInt): void {
     let emojiStats = EmojiLeaderBoard.load(emojiName) as EmojiLeaderBoard;
-    if (price == emojiStats.floor) { // it was the floor ! now you will need a correction, find second lowest
-        emojiStats.floor = findFloor(emojiName, price);
+    if (price == emojiStats.floor) { // now you will need a correction, find second lowest
+        emojiStats.floor = findFloor(emojiName);
     }
     emojiStats.totalVolume = emojiStats.totalVolume.plus(price);
     emojiStats.totalSold++;
@@ -139,7 +142,7 @@ export function updateEmojiLeaderBoardsAddListing(emojis: string[], price: BigIn
         updateEmojiLeaderBoardAddListing(emojis[x], price);
     }
 }
-
+// has to be called after removeEmojiPricesList
 export function updateEmojiLeaderBoardsAfterSale(emojis: string[], price: BigInt): void {
     for (let x: u32 = 0; x < u32(emojis.length); ++x) {
         updateEmojiLeaderBoardAfterSale(emojis[x], price);
