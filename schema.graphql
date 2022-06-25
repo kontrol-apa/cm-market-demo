@@ -15,6 +15,7 @@ type Blueprint @entity {
   price : BigInt!
   searchString: String!
   emojisWithFEOF: [String!]!
+  totalScore: Int!
 
 }
 

@@ -205,8 +205,10 @@ export function handleCombined(event: Combined): void {
   let mintedBp = Blueprint.load(mintedTokenID.toHex());
   if (mintedBp) {
     mintedBp.combined = totalCombined;
+    mintedBp.totalScore += totalCombined; 
     mintedBp.save();
     fixCombinedScore(mintedBp,I32.parseInt(mintedBp.id));
+
   }
   else {
     log.error("Unexpected null entity at {}", ['Combine'])
@@ -263,6 +265,7 @@ export function handleTransfer(event: Transfer): void {
     blueprint.owner = event.params.to.toHex()
     blueprint.combined = 0;
     organizeRankingsAfterMint(blueprint, i32(parseInt(blueprint.id)))
+    blueprint.totalScore = blueprint.score * 1000 + getTotalScore(blueprint);
     blueprint.save()
     statistics.totalBlueprint++;
     statistics.totalEmojiCount = statistics.totalEmojiCount + 5
@@ -286,6 +289,3 @@ export function handleTransfer(event: Transfer): void {
 
   statistics.save()
 }
-
-
-

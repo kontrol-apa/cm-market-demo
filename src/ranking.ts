@@ -71,7 +71,7 @@ export function getTotalScore(bp: Blueprint): i32 {
                 let contract = AlchemyTree.bind(AlchemyTreeAddress);
                 let element = contract.getElement(emoji);
                 scoreInfo.score = element.score.toI32();
-                scoreInfo.tier = element.tier.toI32(); 
+                scoreInfo.tier = element.tier.toI32() * 7; 
                 emojiScoreMapping.set(emoji, (scoreInfo.score + scoreInfo.tier).toString());
                 totalScore += (scoreInfo.score + scoreInfo.tier);
                 scoreInfo.save();
@@ -89,7 +89,7 @@ export function getTotalScore(bp: Blueprint): i32 {
 
         }
     }
-    totalScore *= 100; // emoji scores are more important than combined 
+    totalScore *= 10; // emoji scores are more important than combined 
     totalScore += bp.combined;
     return totalScore;
 
