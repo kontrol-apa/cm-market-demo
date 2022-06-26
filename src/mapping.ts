@@ -179,7 +179,7 @@ export function handleCombined(event: Combined): void {
   flagBurnedBlueprintForRefund(innerBP!.id);
   flagBurnedBlueprintForRefund(outerBP!.id);
   removeActivityHistory(innerBP!)
-  removeActivityHistory(outerBP!) //TODO might be redundant
+  removeActivityHistory(outerBP!) //TODO : remove, it doesnt have any affect since the history is derived, an activity counting scheme can implemented if this becomes necessary
   updateEmojiLeaderBoardsAfterCombine(innerBP!.emojis);
   updateEmojiLeaderBoardsAfterCombine(outerBP!.emojis);
   updateClasseseaderBoardAfterCombine(innerBP!.score);

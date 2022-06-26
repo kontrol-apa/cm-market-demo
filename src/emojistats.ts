@@ -1,4 +1,4 @@
-import {EmojiLeaderBoard, EmojiPricesList } from "../generated/schema"
+import { EmojiLeaderBoard, EmojiPricesList } from "../generated/schema"
 import { BigInt, log } from "@graphprotocol/graph-ts"
 
 export function updateEmojiPricesList(emojis: string[], price: BigInt): void {
@@ -63,7 +63,7 @@ function findFloor(emojiName: string): BigInt {
         }
     }
     else {
-        log.error("{}",["pricesList is empty!"])
+        log.error("{}", ["pricesList is empty!"])
     }
     if (floor.equals(BigInt.fromString("10000000000000000000000"))) {
         floor = BigInt.zero();
@@ -147,7 +147,7 @@ function updateEmojiLeaderBoardAfterSale(emojiName: string, price: BigInt): void
     emojiStats.totalVolume = emojiStats.totalVolume.plus(price);
     emojiStats.totalSold++;
     emojiStats.avarageSale = emojiStats.totalVolume.div(BigInt.fromI32(emojiStats.totalSold));
-    emojiStats.available -=1;
+    emojiStats.available -= 1;
 
     emojiStats.save();
 
