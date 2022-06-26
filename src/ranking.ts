@@ -1,6 +1,6 @@
 import { Rank, RankingHelper, RankBPList, Blueprint, RankHelperBP, EmojiScoreInfo } from "../generated/schema"
 import { log, TypedMap, TypedMapEntry, store, Address } from "@graphprotocol/graph-ts"
-import { AlchemyTree } from "../generated/AlchemyTree/AlchemyTree";
+import { AlchemyTree } from "../generated/CMBlueprint/AlchemyTree";
 let emojiScoreMapping: TypedMap<string, string> = new TypedMap;
 const AlchemyTreeAddress = Address.fromString("0x79686Ae9A71a8Bd9589247EC26D1d526BAB67930");
 

@@ -1,5 +1,5 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
-import { UpdateSaleVolumePerScorePoint, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner,getOrCreateEmoji, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
+import { UpdateSaleVolumePerScorePoint, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
 import { fixCombinedScore, getTotalScore, organizeRankingsAfterBurn, organizeRankingsAfterMint, updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
 import {
@@ -22,7 +22,7 @@ import { Bid, Blueprint} from "../generated/schema"
 import { updateEmojiLeaderBoardsAfterAcceptBid, updateEmojiLeaderBoardsAddListing, updateEmojiLeaderBoardsAfterCombine, updateEmojiLeaderBoardsAfterMint, updateEmojiLeaderBoardsAfterSale, updateEmojiLeaderBoardsCancelListing, updateEmojiLeaderBoardsUpdateListing } from "./emojistats"
 import { updateClassesLeaderBoardAfterAcceptBid, getClassName, updateClasseseaderBoardAfterCombine, updateClassesLeaderBoardAddListing, createClassesLeaderBoardAfterMint, updateClassesLeaderBoardAfterSale, updateClassesLeaderBoardCancelListing } from "./classStats"
 import { decreaseBidCount, flagBurnedBlueprintForRefund, incrementBidCount } from "./refundHelper"
-import { RoleRevoked } from "../generated/AlchemyTree/AlchemyTree"
+import { RoleRevoked } from "../generated/CMBlueprint/AlchemyTree"
 
 const MARKETPLACE_ADDRESS: Address = Address.fromString('0x150Ce3479d786cD0d5e79Bb2e187F5D4639d1563')
 
