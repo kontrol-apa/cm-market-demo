@@ -163,7 +163,7 @@ export function handleUpdateListingEv(event: UpdateListingEv): void {
 }
 
 export function handleCombined(event: Combined): void {
-
+  
   let innerTokenID = event.params.inner.toHex()
   let outerTokenID = event.params.outer.toHex()
   let mintedTokenID = event.params.tokenId
@@ -194,7 +194,7 @@ export function handleCombined(event: Combined): void {
   let mintedBp = Blueprint.load(mintedTokenID.toHex());
   if (mintedBp) {
     mintedBp.combined = totalCombined;
-    mintedBp.totalScore += totalCombined; 
+    mintedBp.totalScore = mintedBp.totalScore.plus(BigInt.fromI32(totalCombined * 1500000));
     mintedBp.save();
     fixCombinedScore(mintedBp,I32.parseInt(mintedBp.id));
 
@@ -252,7 +252,7 @@ export function handleTransfer(event: Transfer): void {
     blueprint.owner = event.params.to.toHex()
     blueprint.combined = 0;
     organizeRankingsAfterMint(blueprint, i32(parseInt(blueprint.id)))
-    blueprint.totalScore = blueprint.score * 1000 + getTotalScore(blueprint);
+    blueprint.totalScore = BigInt.fromI32(blueprint.score).times(BigInt.fromI64(10000000000)).plus(getTotalScore(blueprint));
     blueprint.save()
     statistics.totalBlueprint++;
     statistics.totalEmojiCount = statistics.totalEmojiCount + 5

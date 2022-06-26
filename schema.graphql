@@ -15,7 +15,9 @@ type Blueprint @entity {
   price : BigInt!
   searchString: String!
   emojisWithFEOF: [String!]!
-  totalScore: Int!
+  totalScore: BigInt!
+  rank: RankHelperBP @derivedFrom (field: "bpId")
+
 
 }
 
@@ -113,8 +115,9 @@ type EmojiScoreInfo @entity {
 
 type RankHelperBP @entity {
   id: ID! # bp ID
-  inScoreExtraPoint: Int!
+  inScoreExtraPoint: BigInt!
   inScoreRank: Int!
+  bpId: Blueprint!
 }
 
 type RankingHelper @entity {
