@@ -1,5 +1,5 @@
-import { Stat, Owner, ScoreSalesVolume, EmojiPricesList } from "../generated/schema"
-import { Address, BigInt, log, store } from "@graphprotocol/graph-ts"
+import { Stat, Owner, EmojiPricesList } from "../generated/schema"
+import { Address, BigInt, store } from "@graphprotocol/graph-ts"
 
 export function getOrCreateStatistics(): Stat {
 
@@ -48,21 +48,6 @@ export function removeOwner(ownerAdress: Address, statistics: Stat): void {
     }
 
 }
-
-//TODO this function is redundant - get approval
-export function UpdateSaleVolumePerScorePoint(scorePoint: number, salePrice: BigInt): void {
-    let saleVolumePerScore = ScoreSalesVolume.load(scorePoint.toString())
-    if (!saleVolumePerScore) {
-        saleVolumePerScore = new ScoreSalesVolume(scorePoint.toString())
-        saleVolumePerScore.totalVolume = salePrice
-    }
-    else {
-        saleVolumePerScore.totalVolume = saleVolumePerScore.totalVolume.plus(salePrice)
-    }
-    saleVolumePerScore.save()
-
-}
-
 
 
 export function updateEmojiPricesList(emojis: string[], price: BigInt): void {

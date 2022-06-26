@@ -47,11 +47,6 @@ type Owner @entity{ # count entities somehow
 }
 
 
-type ScoreSalesVolume @entity{
-  id: ID!
-  totalVolume: BigInt!
-}
-
 type Activity @entity{
   id: ID! # blueprintId + txid
   name: String

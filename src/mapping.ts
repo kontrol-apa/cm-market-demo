@@ -1,5 +1,5 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
-import { UpdateSaleVolumePerScorePoint, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
+import { getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
 import { fixCombinedScore, getTotalScore, organizeRankingsAfterBurn, organizeRankingsAfterMint, updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
 import {
@@ -82,21 +82,17 @@ export function handleUpdateBidEv(event: UpdateBidEv): void {
 
 export function handleAcceptBidEv(event: AcceptBidEv): void {
   let name = event.params.tokenId.toHex() + event.params.buyer.toHex();
-  let blueprint = Blueprint.load(event.params.tokenId.toHex())
-  let bid = Bid.load(name)
-  if (blueprint) {
-    blueprint.owner = event.transaction.from.toHex();
-    UpdateSaleVolumePerScorePoint(blueprint.score, bid!.bidPrice);
-    
-  }
+  let blueprint = Blueprint.load(event.params.tokenId.toHex());
+  let bid = Bid.load(name);
   let statistics = getOrCreateStatistics();
   statistics.totalVolume = statistics.totalVolume.plus(bid!.bidPrice);
-  removeOwner(Address.fromString(bid!.owner), statistics)
+  removeOwner(Address.fromString(bid!.owner), statistics);
   addOwnerandUpdateStatistics(event.params.buyer, statistics);
   statistics.save()
   registerAcceptBidActivity(event, bid!.bidPrice);
   updateEmojiLeaderBoardsAfterAcceptBid(blueprint!.emojis, bid!.bidPrice);
   updateClassesLeaderBoardAfterAcceptBid(blueprint!.score, bid!.bidPrice);
+  
   const remaining = decreaseBidCount(event.params.tokenId.toHex());
   if(remaining == 0){
     let bp = Blueprint.load(event.params.tokenId.toHex());
@@ -148,7 +144,6 @@ export function handleFulfillListingEv(event: FulfillListingEv): void {
   blueprint!.save()
   statistics.save()
   removeEmojiPricesList(blueprint!.emojis, oldPrice);
-  UpdateSaleVolumePerScorePoint(blueprint!.score, oldPrice);
   registerFullfillActivity(event, blueprint!.owner);
   updateEmojiLeaderBoardsAfterSale(blueprint!.emojis, oldPrice);
   updateClassesLeaderBoardAfterSale(blueprint!.score, oldPrice);
