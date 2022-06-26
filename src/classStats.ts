@@ -48,15 +48,14 @@ export function updateClassesLeaderBoardAfterAcceptBid(BpScore: i32, price: BigI
     
 }
 
-export function updateClassesLeaderBoardAddListing(BpScore: i32, price: BigInt): void { 
+export function updateClassesLeaderBoardAddListing(BpScore: i32): void {
     let className = getClassName(BpScore);
     let classStats = ClassLeaderBoard.load(className) as ClassLeaderBoard;
     classStats.available += 1;
     classStats.save();
-    // all of the other stats are not affected since something combinbed can not be on the market hence no floor etc
 }
 
-export function updateClassesLeaderBoardCancelListing(BpScore: i32, price: BigInt): void { 
+export function updateClassesLeaderBoardCancelListing(BpScore: i32): void {
     let className = getClassName(BpScore);
     let classStats = ClassLeaderBoard.load(className) as ClassLeaderBoard;
     classStats.available -= 1;

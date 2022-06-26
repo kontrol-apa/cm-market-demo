@@ -1,5 +1,5 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
-import { getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner } from "./utils"
+import { getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner } from "./stats"
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
 import { fixCombinedScore, getTotalScore, organizeRankingsAfterBurn, organizeRankingsAfterMint, updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
 import {
@@ -114,7 +114,7 @@ export function handleAddListingEv(event: AddListingEv): void {
   blueprint!.save();
   updateEmojiPricesList(blueprint!.emojis,  event.params.price)
   updateEmojiLeaderBoardsAddListing(blueprint!.emojis, event.params.price);
-  updateClassesLeaderBoardAddListing(blueprint!.score, event.params.price);
+  updateClassesLeaderBoardAddListing(blueprint!.score);
 
 }
 
@@ -125,7 +125,7 @@ export function handleCancelListingEv(event: CancelListingEv): void {
   blueprint!.price = BigInt.zero();
   removeEmojiPricesList(blueprint!.emojis,oldPrice);
   updateEmojiLeaderBoardsCancelListing(blueprint!.emojis, oldPrice);
-  updateClassesLeaderBoardCancelListing(blueprint!.score, oldPrice);
+  updateClassesLeaderBoardCancelListing(blueprint!.score);
   registerCancelListingActivity(event);
   blueprint!.save();
 
