@@ -1,4 +1,4 @@
-import { Stat, Owner, Emoji, ScoreSalesVolume, EmojiPricesList } from "../generated/schema"
+import { Stat, Owner, ScoreSalesVolume, EmojiPricesList } from "../generated/schema"
 import { Address, BigInt, log, store } from "@graphprotocol/graph-ts"
 
 export function getOrCreateStatistics(): Stat {
@@ -16,42 +16,6 @@ export function getOrCreateStatistics(): Stat {
     return statistics
 
 }
-
-export function getOrCreateEmoji(emojiString: string): Emoji {
-    let emoji = Emoji.load(emojiString);
-    if (emoji == null) {
-        emoji = new Emoji(emojiString);
-        emoji.count = 0;
-        emoji.save()
-    }
-
-    return emoji
-}
-
-export function decreaseEmojiCount(emojiString: string): void {
-    let emoji = Emoji.load(emojiString);
-    if (emoji != null) {
-        emoji.count--;
-        if (emoji.count == 0) {
-            store.remove('Emoji', emojiString)
-        }
-        else {
-            emoji.save()
-        }
-    }
-    else {
-        log.error("{}", ["decreaseEmojiCount found a null emoji!"])
-    }
-}
-
-export function registerEmojis(emojiStringList: string[]): void {
-    emojiStringList.forEach(element => {
-        let emoji = getOrCreateEmoji(element);
-        emoji.count++;
-        emoji.save()
-    });
-}
-
 
 
 export function addOwnerandUpdateStatistics(ownerAdress: Address, statistics: Stat): void {

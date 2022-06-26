@@ -46,10 +46,6 @@ type Owner @entity{ # count entities somehow
   
 }
 
-type Emoji @entity{ 
-  id: ID!
-  count: Int!  
-}
 
 type ScoreSalesVolume @entity{
   id: ID!

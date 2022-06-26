@@ -1,5 +1,5 @@
 import { Address, log, store, BigInt } from "@graphprotocol/graph-ts"
-import { UpdateSaleVolumePerScorePoint, decreaseEmojiCount, registerEmojis, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
+import { UpdateSaleVolumePerScorePoint, getOrCreateStatistics, addOwnerandUpdateStatistics, removeOwner, updateEmojiPricesList, removeEmojiPricesList } from "./utils"
 import { registerPlaceBidActivity, registerActivity, registerAcceptBidActivity, registerUpdateBidActivity, registerAddListingActivity, registerFullfillActivity, removeActivityHistory,registerUpdateListingActivity, registerCancelListingActivity, registerCancelBidActivity} from "./activity"
 import { fixCombinedScore, getTotalScore, organizeRankingsAfterBurn, organizeRankingsAfterMint, updateRankingAfterBurn, updateRankingAfterMint } from "./ranking"
 import {
@@ -176,12 +176,6 @@ export function handleCombined(event: Combined): void {
   let statistics = getOrCreateStatistics()
   let innerBP = Blueprint.load(innerTokenID)
   let outerBP = Blueprint.load(outerTokenID)
-  innerBP!.emojis.forEach(element => {
-    decreaseEmojiCount(element)
-  });
-  outerBP!.emojis.forEach(element => {
-    decreaseEmojiCount(element)
-  });
   removeOwner(event.params.from, statistics)
   removeOwner(event.params.from, statistics) // 2 BPs burned
   addOwnerandUpdateStatistics(event.params.from, statistics) // a new BP added
@@ -244,8 +238,6 @@ export function handleTransfer(event: Transfer): void {
     blueprint.emojis = [e1,e2,e3,e4,e5];
     blueprint.numericId = event.params.id.toI32();
 
-    
-    registerEmojis([e1, e2, e3, e4, e5]) // might be redundant 
     updateEmojiLeaderBoardsAfterMint([e1, e2, e3, e4, e5]);
 
     blueprint.emojiStringParsed = e1 + e2 + e3 + e4 + e5;
