@@ -1,6 +1,51 @@
 import {EmojiLeaderBoard, EmojiPricesList } from "../generated/schema"
 import { BigInt, log } from "@graphprotocol/graph-ts"
 
+export function updateEmojiPricesList(emojis: string[], price: BigInt): void {
+    for (let x: u32 = 0; x < u32(emojis.length); ++x) {
+        let emojiPricelist = EmojiPricesList.load(emojis[x])
+        if (!emojiPricelist) {
+            emojiPricelist = new EmojiPricesList(emojis[x]);
+            emojiPricelist.prices = [price]
+            emojiPricelist.save();
+        }
+        else {
+            let priceList = emojiPricelist.prices
+            priceList.push(price)
+            emojiPricelist.prices = priceList;
+            emojiPricelist.save();
+        }
+
+
+    }
+}
+
+export function removeEmojiPricesList(emojis: string[], price: BigInt): void {
+    for (let x: u32 = 0; x < u32(emojis.length); ++x) {
+        let emojiPricelist = EmojiPricesList.load(emojis[x])
+        let prices = emojiPricelist!.prices;
+        if (prices.length == 1) {
+            emojiPricelist!.prices = [];
+            emojiPricelist!.save()
+        }
+        else {
+            if (price.equals(prices[prices.length - 1])) { // if already the last element, dont replace
+                let lastelem = prices.pop();
+                emojiPricelist!.prices = prices;
+                emojiPricelist!.save()
+            }
+            else {
+                let lastelem = prices.pop();
+                let index = prices.indexOf(price)
+                prices[index] = lastelem;
+                emojiPricelist!.prices = prices;
+                emojiPricelist!.save()
+            }
+        }
+    }
+}
+
+
 /**
  * Does a standart minimum search in a unsorted list
  * @param emojiName : Emoji name (FEOF stripped) 
