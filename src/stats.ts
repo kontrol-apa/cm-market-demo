@@ -17,7 +17,7 @@ export function getOrCreateStatistics(): Stat {
 
 }
 
-
+// the statistics (Stat) object has to be manually saved afterwards: TODO: fix, its bad design
 export function addOwnerandUpdateStatistics(ownerAdress: Address, statistics: Stat): void {
 
     let owner = Owner.load(ownerAdress.toHex())
@@ -32,7 +32,8 @@ export function addOwnerandUpdateStatistics(ownerAdress: Address, statistics: St
     owner.save();
 }
 
-// combining or transfering doesnt reduce the owner count
+// combining or transfering doesnt change the owner count. Just like the addOwnerandUpdateStatistics function
+// this function requires the statistics (Stat) object has to be manually saved afterwards
 export function removeOwner(ownerAdress: Address, statistics: Stat): void {
 
     let sender = Owner.load(ownerAdress.toHex())
