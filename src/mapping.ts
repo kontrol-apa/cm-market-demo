@@ -95,12 +95,12 @@ export function handleAcceptBidEv(event: AcceptBidEv): void {
   
   const remaining = decreaseBidCount(event.params.tokenId.toHex());
   if(remaining == 0){
-    let bp = Blueprint.load(event.params.tokenId.toHex());
-    if(bp){
-      bp.hasBids = false;
-      bp.save();
-    }
+    blueprint!.hasBids = false;
+          
   }
+  blueprint!.owner = event.params.buyer.toHex();
+  blueprint!.ownerId = event.params.buyer.toHex();
+  blueprint!.save();
   store.remove('Bid', name)
 
 }
@@ -139,6 +139,8 @@ export function handleFulfillListingEv(event: FulfillListingEv): void {
   blueprint!.listed = false;
   blueprint!.price = BigInt.zero();
   blueprint!.owner = event.transaction.from.toHex();
+  blueprint!.ownerId = event.transaction.from.toHex();
+
   removeOwner(Address.fromString(blueprint!.owner), statistics)
   addOwnerandUpdateStatistics(event.transaction.from, statistics)
   blueprint!.save()
@@ -250,6 +252,7 @@ export function handleTransfer(event: Transfer): void {
 
     blueprint.scoreCategory = getClassName(blueprint.score)
     blueprint.owner = event.params.to.toHex()
+    blueprint.ownerId = event.params.to.toHex();
     blueprint.combined = 0;
     organizeRankingsAfterMint(blueprint, i32(parseInt(blueprint.id)))
     blueprint.totalScore = BigInt.fromI32(blueprint.score).times(BigInt.fromI64(10000000000)).plus(getTotalScore(blueprint));
@@ -266,6 +269,7 @@ export function handleTransfer(event: Transfer): void {
     let blueprint = Blueprint.load(event.params.id.toHex())
     if (blueprint) {
       blueprint.owner = event.params.to.toHex()
+      blueprint.ownerId = event.params.to.toHex()
       blueprint.save();
     }
     else {

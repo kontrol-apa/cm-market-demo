@@ -8,6 +8,7 @@ type Blueprint @entity {
   bids: [Bid!] @derivedFrom (field: "blueprint") 
   emojis: [EmojiLeaderBoard!]! 
   owner: String!
+  ownerId: Owner!
   history: [Activity!] @derivedFrom (field: "blueprint")
   combined: Int!
   hasBids: Boolean!
@@ -45,6 +46,7 @@ type Stat @entity {
 type Owner @entity{ # count entities somehow
   id: ID!
   numberOfBlueprints: Int!
+  blueprints: [Blueprint!] @derivedFrom (field: "ownerId")
   
 }
 
