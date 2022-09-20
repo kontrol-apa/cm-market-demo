@@ -24,7 +24,7 @@ import { updateClassesLeaderBoardAfterAcceptBid, getClassName, updateClasseseade
 import { decreaseBidCount, flagBurnedBlueprintForRefund, incrementBidCount } from "./refundHelper"
 import { RoleRevoked } from "../generated/CMBlueprint/AlchemyTree"
 
-const MARKETPLACE_ADDRESS: Address = Address.fromString('0x150Ce3479d786cD0d5e79Bb2e187F5D4639d1563')
+const MARKETPLACE_ADDRESS: Address = Address.fromString('0x2a17BC4aF2bc7f01AF19e51f587218aeBA102FeA')
 
 
 export function handleCreateBidEv(event: CreateBidEv): void {

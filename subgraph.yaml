@@ -1,4 +1,4 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 features:
   - fullTextSearch
 schema:
@@ -8,12 +8,12 @@ dataSources:
     name: CloudMetropolisMarket
     network: fuji
     source:
-      address: "0x150Ce3479d786cD0d5e79Bb2e187F5D4639d1563"
-      startBlock: 9025112
+      address: "0x2a17bc4af2bc7f01af19e51f587218aeba102fea"
+      startBlock: 13609492
       abi: CloudMetropolisMarket
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AcceptBidEv
@@ -57,7 +57,7 @@ dataSources:
       abi: CMBlueprint
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - BleuprintBurnEv
