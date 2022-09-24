@@ -35,6 +35,7 @@ export function handleCreateBidEv(event: CreateBidEv): void {
   entity.owner = event.params.owner.toHex()
   entity.tokenID = event.params.tokenId
   entity.blueprint = event.params.tokenId.toHex();
+  entity.date = event.block.timestamp;
   incrementBidCount(event.params.tokenId.toHex());
   let bp = Blueprint.load(event.params.tokenId.toHex());
   if(bp){
@@ -73,6 +74,7 @@ export function handleUpdateBidEv(event: UpdateBidEv): void {
   let name = event.params.tokenId.toHex() + event.transaction.from.toHex()
   let bid = Bid.load(name);
   bid!.bidPrice = event.params.bidPrice;
+  bid!.date = event.block.timestamp;
   registerUpdateBidActivity(event);
   bid!.save()
   
@@ -134,19 +136,18 @@ export function handleCancelListingEv(event: CancelListingEv): void {
 export function handleFulfillListingEv(event: FulfillListingEv): void {
   let statistics = getOrCreateStatistics();
   let blueprint = Blueprint.load(event.params.tokenId.toHex());
+  registerFullfillActivity(event, blueprint!.owner);
   const oldPrice = blueprint!.price;
   statistics.totalVolume = statistics.totalVolume.plus(oldPrice);
   blueprint!.listed = false;
   blueprint!.price = BigInt.zero();
   blueprint!.owner = event.transaction.from.toHex();
   blueprint!.ownerId = event.transaction.from.toHex();
-
   removeOwner(Address.fromString(blueprint!.owner), statistics)
   addOwnerandUpdateStatistics(event.transaction.from, statistics)
   blueprint!.save()
   statistics.save()
   removeEmojiPricesList(blueprint!.emojis, oldPrice);
-  registerFullfillActivity(event, blueprint!.owner);
   updateEmojiLeaderBoardsAfterSale(blueprint!.emojis, oldPrice);
   updateClassesLeaderBoardAfterSale(blueprint!.score, oldPrice);
 
@@ -261,6 +262,7 @@ export function handleTransfer(event: Transfer): void {
     statistics.totalEmojiCount = statistics.totalEmojiCount + 5
     
     createClassesLeaderBoardAfterMint(blueprint.score);
+    registerActivity(event.params.id, "Minted", event)
   }
   else { // direct transfer to another address
 
