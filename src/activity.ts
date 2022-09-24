@@ -14,15 +14,15 @@ export function registerActivity(tokenID: BigInt, eventName: string, event: ethe
 
 }
 
-export function registerFullfillActivity(event: FulfillListingEv, to:string): void {
+export function registerFullfillActivity(event: FulfillListingEv, owner:string): void {
     let activity = new Activity(event.transaction.hash.toHex()+ event.params.tokenId.toHex())
     activity.blueprint = event.params.tokenId.toHex()
     activity.eventCategory = "Listing";
     activity.date = event.block.timestamp
     activity.name = "Fulfill Listing"
-    activity.from = event.transaction.from.toHex()
+    activity.from = owner
     activity.txHash = event.transaction.hash;
-    activity.to = to
+    activity.to = event.transaction.from.toHex()
     activity.price = event.params.price;
     activity.save()
 
