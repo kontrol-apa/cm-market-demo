@@ -40,7 +40,7 @@ For performance reasons, its recommended to run a dedicated graph node on a serv
 
 #### Setup Node
 
-You can run the setup script under `/graph-node` as:
+You can clone this repo and run the setup script as:
 
 ```
 bash setup-graph-node.sh mainnet
@@ -93,6 +93,6 @@ https://thegraph.com/docs/en/hosted-service/deploy-subgraph-hosted/#redeploying-
 ### Caveats 
 
 1. If a subgraph is redeployed and if it is supposed to start indexing from an old block number, it might take a long time. It eventually catches up and then indexing isn't resource intensive. The indexing process is not parallelized so increasing the resources will not contribute much. 
-2. The bottleneck is usually the rpc node. For Avalanche. the public rpc node seems to be performing better than paid services like Moralis etc. For better performance, it is possible to run a local avalanche node and query this from the graph node but we havent tested this.
+2. The bottleneck is usually the rpc node. For Avalanche. the public rpc node seems to be performing better than paid services like Moralis etc. For better performance, it is possible to run a local avalanche node and query this from the graph node but we haven't tested this.
 3. The node caches the queries. It might be a good idea to increase the cache size for better performance.
-4. We are using a 4 CPU, 8 gb ram, 80 gb ssd AWS ubuntu 20.04 machine for our node. This seems to be an overkill and we could have dont with less CPU for sure. That being said, we recommend having more storage space since the graph node seems to fill it up relatively fast.  
+4. We are using a 4 CPU, 8 gb ram, 80 gb ssd, ubuntu 20.04 machine on AWS for our node. This seems to be an overkill and we could have done with less CPU for sure. That being said, we recommend having more storage space since the graph node seems to fill it up relatively fast.  
